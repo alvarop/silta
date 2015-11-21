@@ -52,10 +52,6 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 	int32_t rval = 0;
 	uint8_t reg;
 
-	printf("%s start %02X\n", __func__, *wBuff);
-	printf("SR1: %08X\n", I2Cx->SR1);
-	printf("SR2: %08X\n", I2Cx->SR2);
-
 	while(I2Cx->SR2 & I2C_SR2_BUSY) {
 	}
 
@@ -109,9 +105,6 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			}
 		}
 
-		i2cErr = 0;
-		I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
-
 		if(rLen > 0) {
 			// Generate start condition
 			I2Cx->CR1 |= I2C_CR1_START;
@@ -162,8 +155,6 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 
 				*rBuff++ = I2Cx->DR;
 			}
-
-			*rBuff++ = I2Cx->DR;
 		}
 
 	} while(0);
@@ -172,10 +163,6 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 	I2Cx->CR1 |= I2C_CR1_STOP;	
 
 	I2C_ITConfig(I2C1, I2C_IT_ERR, DISABLE);
-
-	printf("SR1: %08X\n", I2Cx->SR1);
-	printf("SR2: %08X\n", I2Cx->SR2);
-	printf("%s end\n", __func__);
 
 	return rval;
 }
