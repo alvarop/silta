@@ -2,6 +2,7 @@
 #include <string.h>
 #include "console.h"
 #include "fifo.h"
+#include "i2c.h"
 
 typedef struct {
 	char *commandStr;
@@ -20,7 +21,7 @@ static void command1(uint8_t argc, char *argv[]);
 static void command2(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
-	{"command1", command1, "This is command 1, a test command."},
+	{"i2c", command1, "i2c command"},
 	{"command2", command2, "This is command 2, a different, better, test command."},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
@@ -53,7 +54,11 @@ static void helpFn(uint8_t argc, char *argv[]) {
 // Example Commands
 //
 static void command1(uint8_t argc, char *argv[]) {
-	printf("Command 1 called with %d arguments!\n", argc - 1);
+	uint8_t txBuff[] = {0x00};
+	int32_t rval;
+	printf("Attempting i2c command\n");
+	rval = i2c(I2C1, 0x12, 1, txBuff, 0, NULL);
+	printf("i2c response = %d\n", rval);
 }
 
 //

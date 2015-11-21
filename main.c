@@ -10,6 +10,7 @@
 #include "usbd_cdc_vcp.h"
 
 #include "console.h"
+#include "i2c.h"
 
 #define BLINK_DELAY_MS	(500)
 
@@ -24,6 +25,8 @@ int main(void) {
 	uint32_t nextBlink;
 	uint32_t blinkState = 0;
 	init();
+
+	i2cSetup();
 
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);
