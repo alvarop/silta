@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "console.h"
 #include "fifo.h"
 #include "i2c.h"
@@ -17,12 +18,10 @@ static uint8_t argc;
 static char* argv[8];
 
 static void helpFn(uint8_t argc, char *argv[]);
-static void command1(uint8_t argc, char *argv[]);
-static void command2(uint8_t argc, char *argv[]);
+static void i2cCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
-	{"i2c", command1, "i2c command"},
-	{"command2", command2, "This is command 2, a different, better, test command."},
+	{"i2c", i2cCmd, "i2c command"},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
 	{NULL, NULL, NULL}
@@ -53,21 +52,55 @@ static void helpFn(uint8_t argc, char *argv[]) {
 //
 // Example Commands
 //
-static void command1(uint8_t argc, char *argv[]) {
-	uint8_t txBuff[] = {0x00};
+
+#define I2C_ADDR_OFFSET		(1)
+#define I2C_RLEN_OFFSET		(2)
+#define I2C_WBUFF_OFFSET	(3)
+static void i2cCmd(uint8_t argc, char *argv[]) {
+	uint8_t wBuff[128];
+	uint8_t rBuff[128];
 	int32_t rval;
-	printf("Attempting i2c command\n");
-	rval = i2c(I2C1, 0x12, 1, txBuff, 0, NULL);
-	printf("i2c response = %d\n", rval);
-}
 
-//
-// Example commands
-//
-static void command2(uint8_t argc, char *argv[]) {
-	printf("Command 2 called with %d arguments!\n", argc - 1);
-}
+	do {
+		if(argc < 3) {
+			printf("ERR: I2C Not enough arguments\n");
+			break;
+		}
 
+		uint8_t addr = strtoul(argv[I2C_ADDR_OFFSET], NULL, 16);
+		uint8_t rLen = strtoul(argv[I2C_RLEN_OFFSET], NULL, 10);
+		uint8_t wLen = argc - I2C_WBUFF_OFFSET;
+		
+		if(wLen > sizeof(wBuff)) {
+			printf("ERR: I2C Not enough space in wBuff\n");
+			break;
+		}
+
+		if(rLen > sizeof(rBuff)) {
+			printf("ERR: I2C Not enough space in rBuff\n");
+			break;
+		}
+
+		if(wLen > 0) {
+			for(uint32_t byte = 0; byte < wLen; byte++) {
+				wBuff[byte] = strtoul(argv[I2C_WBUFF_OFFSET + byte], NULL, 16);
+			}
+		}
+
+		rval = i2c(I2C1, addr, wLen, wBuff, rLen, rBuff);
+
+		if(rval) {
+			printf("ERR %d\n", rval);
+		} else {
+			printf("OK ");
+			for(uint32_t byte = 0; byte < rLen; byte++) {
+				printf("%02X ", rBuff[byte]);
+			}
+			printf("\n");
+		}
+
+	} while (0);
+}
 
 void consoleProcess() {
 	uint32_t inBytes = fifoSize(&usbRxFifo);
