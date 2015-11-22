@@ -5,6 +5,7 @@
 
 import serial
 import sys
+import re
 
 class Bridge:
 	def __init__(self, serial_device):
@@ -28,9 +29,7 @@ class Bridge:
 		for byte in w_bytes:
 			cmd += format(byte, ' 02X')
 
-		cmd += '\n'
-
-		self.stream.write(cmd)
+		self.stream.write(cmd + '\n')
 
 		line = self.stream.readline()
 
@@ -44,3 +43,34 @@ class Bridge:
 			r_bytes = int(result[1])
 
 		return r_bytes
+
+	def gpio(self, name, value = None):
+		m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
+
+		if m is None:
+			raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')	
+
+		port = m.group(1)
+		pin = int(m.group(2))
+
+		if pin > 15:
+			raise ValueError('Invalid pin. Should be a number from 0-15')	
+
+		cmd = 'gpio ' + port + ' ' + str(pin)
+
+		if value != None:
+			cmd += ' ' + str(value)
+
+		self.stream.write(cmd + '\n')
+
+		line = self.stream.readline()
+		result = line.strip().split(' ')
+
+		if result[0] == 'OK':
+			if value != None:
+				return
+			else:
+				return int(result[1])
+		else:
+			return None
+
