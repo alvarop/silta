@@ -8,6 +8,7 @@
 #include "config.h"
 #include "fifo.h"
 #include "i2c.h"
+#include "spi.h"
 #include "gpio.h"
 
 typedef struct {
@@ -24,11 +25,13 @@ static char* argv[8];
 
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
+static void spiCmd(uint8_t argc, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
+	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"config", cfgCmd, "<key> [value]"},
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
@@ -100,6 +103,40 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		} else {
 			printf("OK ");
 			for(uint32_t byte = 0; byte < rLen; byte++) {
+				printf("%02X ", rBuff[byte]);
+			}
+			printf("\n");
+		}
+
+	} while (0);
+}
+
+#define SPI_WBUFF_OFFSET (1)
+
+static void spiCmd(uint8_t argc, char *argv[]) {
+	uint8_t wBuff[128];
+	uint8_t rBuff[128];
+	int32_t rval = 0;
+
+	do {
+		uint32_t rwLen = argc - SPI_WBUFF_OFFSET;
+
+		if(argc < 2) {
+			printf("ERR: SPI Not enough arguments\n");
+			break;
+		}
+
+		for(uint32_t byte = 0; byte < rwLen; byte++) {
+			wBuff[byte] = strtoul(argv[SPI_WBUFF_OFFSET + byte], NULL, 16);
+		}
+
+		rval = spi(SPI1, rwLen, wBuff, rBuff);
+
+		if(rval) {
+			printf("ERR %ld\n", rval);
+		} else {
+			printf("OK ");
+			for(uint32_t byte = 0; byte < rwLen; byte++) {
 				printf("%02X ", rBuff[byte]);
 			}
 			printf("\n");

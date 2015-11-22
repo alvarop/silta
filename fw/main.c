@@ -11,6 +11,7 @@
 
 #include "console.h"
 #include "i2c.h"
+#include "spi.h"
 #include "gpio.h"
 
 #define BLINK_DELAY_MS	(500)
@@ -29,6 +30,7 @@ int main(void) {
 
 	gpioInit();
 	i2cSetup(100000);
+	spiSetup(SPI1, 1000000, 0, 0);
 
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);
