@@ -30,7 +30,6 @@ class Bridge:
 
 		cmd += '\n'
 
-		print cmd,
 		self.stream.write(cmd)
 
 		line = self.stream.readline()
