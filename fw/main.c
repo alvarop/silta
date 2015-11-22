@@ -26,7 +26,7 @@ int main(void) {
 	uint32_t blinkState = 0;
 	init();
 
-	i2cSetup();
+	i2cSetup(100000);
 
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);

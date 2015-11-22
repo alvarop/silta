@@ -1,3 +1,6 @@
+#ifndef __I2C_H__
+#define __I2C_H__
+
 #include <stdint.h>
 #include "stm32f4xx.h"
 
@@ -8,5 +11,7 @@ typedef enum {
 	I2C_ERR
 } i2cReturn_t;
 
-void i2cSetup();
+void i2cSetup(uint32_t speed);
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff);
+
+#endif

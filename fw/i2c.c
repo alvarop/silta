@@ -5,7 +5,7 @@
 #include "stm32f4xx.h"
 #include "i2c.h"
 
-volatile uint32_t i2cErr = 0;
+static volatile uint32_t i2cErr = 0;
 
 void I2C1_EV_IRQHandler(void) {
 
@@ -19,7 +19,7 @@ void I2C1_ER_IRQHandler(void) {
 	I2C_ITConfig(I2C1, I2C_IT_ERR, DISABLE);
 }
 
-void i2cSetup() {
+void i2cSetup(uint32_t speed) {
 	I2C_InitTypeDef i2cConfig;
 
 	// GPIO Init
@@ -36,7 +36,10 @@ void i2cSetup() {
 	// I2C init
 	I2C_StructInit(&i2cConfig);
 
-	i2cConfig.I2C_ClockSpeed = 100000;
+	// TODO - Figure out why the speed isn't being set porperly
+	i2cConfig.I2C_ClockSpeed = speed;
+	
+	i2cConfig.I2C_DutyCycle = I2C_DutyCycle_16_9;
 
 	I2C_DeInit(I2C1);
 
