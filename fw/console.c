@@ -96,7 +96,7 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		rval = i2c(I2C1, addr, wLen, wBuff, rLen, rBuff);
 
 		if(rval) {
-			printf("ERR %d\n", rval);
+			printf("ERR %ld\n", rval);
 		} else {
 			printf("OK ");
 			for(uint32_t byte = 0; byte < rLen; byte++) {
@@ -136,7 +136,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 				if (value < 0) {
 					printf("ERR\n");
 				} else {
-					printf("OK %d\n", value);
+					printf("OK %ld\n", value);
 				}
 			} else {
 				int32_t rval = gpioSet(GPIOx, pin, (argv[3][0] != '0'));

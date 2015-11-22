@@ -34,7 +34,7 @@ static int32_t testSet(char *value) {
 }
 
 static int32_t testGet(char *buff, size_t buffSize) {
-	return snprintf(buff, buffSize, "%d", testVal);
+	return snprintf(buff, buffSize, "%ld", testVal);
 }
 
 static configKey_t keys[] = {
