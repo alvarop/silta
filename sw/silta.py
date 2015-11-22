@@ -8,7 +8,7 @@ import string
 import sys
 import re
 
-class Bridge:
+class stm32f4bridge:
 	pinModes = {
 		'input': 'in',
 		'output': 'outpp',

@@ -8,7 +8,7 @@ SRCS += usbd_usr.c usbd_cdc_vcp.c usbd_desc.c usb_bsp.c usbd_core.c
 
 # Project name
 
-PROJ_NAME = bridge
+PROJ_NAME = silta
 OUTPATH = build
 
 OUTPATH := $(abspath $(OUTPATH))

@@ -1,6 +1,6 @@
-===Bridge Test Project===
+===Silta - Python to STM32F4 Bridge Project===
 
-Basic python-to-i2c bridge. Just testing!
+Python library and STM32F4 Discovery firmware 
 
 --Build instructions
 
@@ -21,7 +21,7 @@ Connect to openOCD
 (gdb) target extended-remote localhost:3333
 
 Load program the stm32f4xx
-(gdb) file build/bridge.elf
+(gdb) file build/silta.elf
 (gdb) load
 
 To run you program:
