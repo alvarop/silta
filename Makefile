@@ -41,7 +41,7 @@ LINKER_SCRIPT = stm32_flash.ld
 
 CPU = -mcpu=cortex-m4 -mthumb
 
-CFLAGS  = $(CPU) -c -std=gnu99 -g -O2 -Wall
+CFLAGS  = $(CPU) -c -std=gnu11 -g -O2 -Wall
 LDFLAGS  = $(CPU) -mlittle-endian -mthumb-interwork -nostartfiles -Wl,--gc-sections,-Map=$(OUTPATH)/$(PROJ_NAME).map,--cref --specs=nano.specs
 
 ifeq ($(FLOAT_TYPE), hard)
@@ -98,7 +98,7 @@ proj: $(OUTPATH)/$(PROJ_NAME).elf
 	$(AS) $(CPU) -o $(addprefix $(OUTPATH)/, $@) $<
 
 .c.o:
-	$(CC) $(CFLAGS) -std=gnu99 $(INCLUDE_PATHS) -o $(addprefix  $(OUTPATH)/, $@) $<
+	$(CC) $(CFLAGS) $(INCLUDE_PATHS) -o $(addprefix  $(OUTPATH)/, $@) $<
 
 $(OUTPATH)/$(PROJ_NAME).elf: $(OBJS)
 	$(LD) $(LDFLAGS) -T$(LINKER_SCRIPT) $(LIBPATHS) -o $@ $(addprefix $(OUTPATH)/, $^) $(LIBS) $(LD_SYS_LIBS)
