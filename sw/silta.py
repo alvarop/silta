@@ -57,6 +57,28 @@ class stm32f4bridge:
 
 		return rbytes
 
+	def spi(self, wbytes):
+		rbytes = []
+		cmd = 'spi'
+		
+		for byte in wbytes:
+			cmd += format(byte, ' 02X')
+
+		self.stream.write(cmd + '\n')
+
+		line = self.stream.readline()
+
+		result = line.strip().split(' ')
+
+		if result[0] == 'OK':
+			for byte in result[1:]:
+				rbytes.append(int(byte, 16))
+
+		else:
+			rbytes = int(result[1])
+
+		return rbytes
+
 	def gpiocfg(self, name, mode='input', pull=None):
 		m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
