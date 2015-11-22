@@ -11,6 +11,7 @@
 
 #include "console.h"
 #include "i2c.h"
+#include "gpio.h"
 
 #define BLINK_DELAY_MS	(500)
 
@@ -26,6 +27,7 @@ int main(void) {
 	uint32_t blinkState = 0;
 	init();
 
+	gpioInit();
 	i2cSetup(100000);
 
 	// Disable line buffering on stdout

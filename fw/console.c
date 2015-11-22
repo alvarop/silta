@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include "stm32f4xx_conf.h"
+#include "stm32f4xx.h"
 #include "console.h"
 #include "config.h"
 #include "fifo.h"
 #include "i2c.h"
+#include "gpio.h"
 
 typedef struct {
 	char *commandStr;
@@ -20,10 +24,14 @@ static char* argv[8];
 
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
+static void gpioCmd(uint8_t argc, char *argv[]);
+static void gpioCfgCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
 	{"config", cfgCmd, "<key> [value]"},
+	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
+	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
 	{NULL, NULL, NULL}
@@ -50,10 +58,6 @@ static void helpFn(uint8_t argc, char *argv[]) {
 		}
 	}
 }
-
-//
-// Example Commands
-//
 
 #define I2C_ADDR_OFFSET		(1)
 #define I2C_RLEN_OFFSET		(2)
@@ -102,6 +106,107 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		}
 
 	} while (0);
+}
+
+// 
+// Set/get GPIO pins
+// 
+static void gpioCmd(uint8_t argc, char *argv[]) {
+	if(argc > 2) {
+		do {
+			char port = toupper((uint32_t)argv[1][0]);
+			uint8_t pin = strtoul(argv[2], NULL, 10);
+			GPIO_TypeDef *GPIOx = NULL;
+
+			if ((port < 'A') || (port > 'E')) {
+				printf("ERR Invalid port");
+				break;
+			}
+
+			if (pin > 15) {
+				printf("ERR Invalid pin");
+				break;
+			}
+
+			GPIOx = (GPIO_TypeDef *)(GPIOA_BASE + (uint32_t)(port - 'A') * (GPIOB_BASE - GPIOA_BASE));
+
+			if(argc == 3) {
+				int32_t value = gpioGet(GPIOx, pin);
+				
+				if (value < 0) {
+					printf("ERR\n");
+				} else {
+					printf("OK %d\n", value);
+				}
+			} else {
+				int32_t rval = gpioSet(GPIOx, pin, (argv[3][0] != '0'));
+				
+				if (rval < 0) {
+					printf("ERR\n");
+				} else {
+					printf("OK\n");
+				}
+			}
+		} while (0);
+	} else {
+		printf("ERR Invalid args");
+	}
+}
+
+//
+// Configure GPIO pins as input/output(open drain or push-pull) 
+// and set pull-up/down resistors
+//
+static void gpioCfgCmd(uint8_t argc, char *argv[]) {
+	if(argc > 2) {
+		do {
+			GPIO_InitTypeDef gpioSettings;
+			char port = toupper((uint32_t)argv[1][0]);
+			uint8_t pin = strtoul(argv[2], NULL, 10);
+			GPIO_TypeDef *GPIOx = NULL;
+
+			if ((port < 'A') || (port > 'E')) {
+				printf("ERR Invalid port");
+				break;
+			}
+
+			if (pin > 15) {
+				printf("ERR Invalid pin");
+				break;
+			}
+
+			GPIOx = (GPIO_TypeDef *)(GPIOA_BASE + (uint32_t)(port - 'A') * (GPIOB_BASE - GPIOA_BASE));
+			gpioSettings.GPIO_Pin  = (1 << pin);
+			gpioSettings.GPIO_Mode = GPIO_Mode_IN;
+			gpioSettings.GPIO_Speed = GPIO_Speed_50MHz;
+			gpioSettings.GPIO_OType = GPIO_OType_PP;
+			gpioSettings.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+			// in|outpp|outod
+			if (strcmp("outpp", argv[3]) == 0) {
+				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
+				gpioSettings.GPIO_OType = GPIO_OType_PP;
+			} else if (strcmp("outpp", argv[3]) == 0) {
+				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
+				gpioSettings.GPIO_OType = GPIO_OType_OD;
+			}
+
+			if (argc > 4) {
+				// nopull|pullup|pulldown
+				if (strcmp("pullup", argv[4]) == 0) {
+					gpioSettings.GPIO_PuPd = GPIO_PuPd_UP;
+				} else if (strcmp("pulldown", argv[4]) == 0) {
+					gpioSettings.GPIO_PuPd = GPIO_PuPd_DOWN;
+				}
+			}
+			
+			GPIO_Init(GPIOx, &gpioSettings);
+
+			printf("OK\n");
+		} while (0);
+	} else {
+		printf("ERR Invalid args");
+	}
 }
 
 void consoleProcess() {
