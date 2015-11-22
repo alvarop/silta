@@ -1,1 +1,4 @@
 *.pyc
+fw/build
+*.a
+*.o
