@@ -35,11 +35,11 @@ class stm32f4bridge:
 	def close(self):
 		self.stream.close()
 
-	def i2c(self, addr, r_len, w_bytes):
-		r_bytes = []
-		cmd = 'i2c ' + format(addr, '02X') + ' ' + str(r_len)
+	def i2c(self, addr, rlen, wbytes):
+		rbytes = []
+		cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
 		
-		for byte in w_bytes:
+		for byte in wbytes:
 			cmd += format(byte, ' 02X')
 
 		self.stream.write(cmd + '\n')
@@ -50,12 +50,12 @@ class stm32f4bridge:
 
 		if result[0] == 'OK':
 			for byte in result[1:]:
-				r_bytes.append(int(byte, 16))
+				rbytes.append(int(byte, 16))
 
 		else:
-			r_bytes = int(result[1])
+			rbytes = int(result[1])
 
-		return r_bytes
+		return rbytes
 
 	def gpiocfg(self, name, mode='input', pull=None):
 		m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
