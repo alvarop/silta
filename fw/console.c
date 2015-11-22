@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "console.h"
+#include "config.h"
 #include "fifo.h"
 #include "i2c.h"
 
@@ -21,7 +22,8 @@ static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
-	{"i2c", i2cCmd, "i2c command"},
+	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
+	{"config", cfgCmd, "<key> [value]"},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
 	{NULL, NULL, NULL}
