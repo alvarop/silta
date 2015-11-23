@@ -21,7 +21,7 @@ void spiSetup(SPI_TypeDef *SPIx, uint32_t speed, uint8_t cpol, uint8_t cpha) {
 	
 	// TODO: Hardcoding CS for now. Will make configurable later
 	// PE3 - CS
-	GPIO_Init(GPIOE, &(GPIO_InitTypeDef){GPIO_Pin_3, GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_UP});
+	GPIO_Init(GPIOE, &(GPIO_InitTypeDef){GPIO_Pin_3, GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL});
 
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
@@ -57,7 +57,8 @@ int32_t spi(SPI_TypeDef *SPIx, uint32_t rwLen, uint8_t *wBuff, uint8_t *rBuff) {
 		
 		SPIx->DR = wBuff[byte];
 		while(!(SPIx->SR & SPI_I2S_FLAG_TXE));
-		while(SPI3->SR & SPI_I2S_FLAG_BSY);
+		while(!(SPIx->SR & SPI_I2S_FLAG_RXNE));
+		while(SPIx->SR & SPI_I2S_FLAG_BSY);
 		rBuff[byte] = SPIx->DR;
 	}
 
