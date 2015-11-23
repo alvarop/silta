@@ -36,12 +36,12 @@ void spiSetup(SPI_TypeDef *SPIx, uint32_t speed, uint8_t cpol, uint8_t cpha) {
 
 	spiConfig.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 	spiConfig.SPI_Mode = SPI_Mode_Master;
-	spiConfig.SPI_CPOL = cpol;
-	spiConfig.SPI_CPHA = cpha;
+	spiConfig.SPI_CPOL = cpol ? SPI_CPOL_High : SPI_CPOL_Low;
+	spiConfig.SPI_CPHA = cpha ? SPI_CPHA_2Edge : SPI_CPHA_1Edge;
 	spiConfig.SPI_NSS = SPI_NSS_Soft;
 
 	// TODO - compute prescaler from speed. Hardcoding for now
-	spiConfig.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64; // (APB2PCLK == 84MHz)/64 = 1312500 Hz
+	spiConfig.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; // (APB2PCLK == 84MHz)/8 = 10500000 Hz
 
 	SPI_I2S_DeInit(SPIx);
 
