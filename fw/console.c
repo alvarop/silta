@@ -130,7 +130,7 @@ static void spiCmd(uint8_t argc, char *argv[]) {
 			wBuff[byte] = strtoul(argv[SPI_WBUFF_OFFSET + byte], NULL, 16);
 		}
 
-		rval = spi(SPI1, rwLen, wBuff, rBuff);
+		rval = spi(0, rwLen, wBuff, rBuff);
 
 		if(rval) {
 			printf("ERR %ld\n", rval);

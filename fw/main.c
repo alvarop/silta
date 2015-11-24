@@ -30,7 +30,8 @@ int main(void) {
 
 	gpioInit();
 	i2cSetup(100000);
-	spiSetup(SPI1, 1000000, 1, 1);
+	spiInit(0);
+	spiConfig(0, 1000000, 1, 1);
 
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);
