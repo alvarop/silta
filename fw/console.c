@@ -26,12 +26,14 @@ static char* argv[8];
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
 static void spiCmd(uint8_t argc, char *argv[]);
+static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
+	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
 	{"config", cfgCmd, "<key> [value]"},
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
@@ -143,6 +145,23 @@ static void spiCmd(uint8_t argc, char *argv[]) {
 		}
 
 	} while (0);
+}
+
+static void spiCfgCmd(uint8_t argc, char *argv[]) {
+
+	if(argc < 3) {
+		printf("ERR: SPI Not enough arguments\n");
+	} else {
+		uint32_t speed = strtoul(argv[1], NULL, 10);
+		uint32_t cpol = strtoul(argv[2], NULL, 10);
+		uint32_t cpha = strtoul(argv[3], NULL, 10);
+
+		spiConfig(0, speed, cpol, cpha);
+		spiInit(0);
+
+		printf("OK\n");
+	}
+
 }
 
 // 
