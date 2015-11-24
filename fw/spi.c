@@ -43,8 +43,9 @@ spiConfig_t spiConfigs[] = {{SPI1, 1000000, GPIOE, 3, 1, 1}};
 
 static uint32_t spiPrescalerFromSpeed(uint32_t device, uint32_t speed) {
 	uint32_t prescaler = SPI_BaudRatePrescaler_256; // Slow default
-	// TODO devices 2 and 3
-	if(device == 1) {
+	
+	// TODO devices SPI2 and SPI3
+	if(device == 0) {
 		for(uint8_t setting = 0; setting < sizeof(speedLUT)/sizeof(spiSpeedLUT_t); setting++) {
 			prescaler = speedLUT[setting].prescaler;
 
