@@ -24,6 +24,8 @@ class stm32f4bridge:
 	def __init__(self, serial_device):
 		self.stream = None
 
+		self.lastcspin = None
+
 		try:
 			self.stream = serial.Serial(serial_device, timeout=0.1)
 		except OSError:
@@ -57,8 +59,38 @@ class stm32f4bridge:
 
 		return rbytes
 
-	def spi(self, wbytes):
+	def set_spi_cs(self, cspin):
+		# Only configure CS if we haven't already
+		if self.lastcspin != cspin:
+			self.lastcspin = cspin
+
+			pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', pin)
+
+			if pinmatch is None:
+				raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')	
+
+			port = pinmatch.group(1)
+			pin = int(pinmatch.group(2))
+
+			if pin > 15:
+				raise ValueError('Invalid pin. Should be a number from 0-15')
+
+			cmd = 'spics ' + port + ' ' + str(pin)
+
+			self.stream.write(cmd + '\n')
+
+			line = self.stream.readline()
+			result = line.strip().split(' ')
+
+			if result[0] != 'OK':
+				raise ValueError('Unable to configure SPI CS pin')
+
+	def spi(self, cspin, wbytes):
 		rbytes = []
+
+		# Make sure the CS pin is selected
+		self.set_spi_cs(cspin)
+
 		cmd = 'spi'
 		
 		for byte in wbytes:
