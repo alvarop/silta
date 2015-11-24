@@ -5,10 +5,11 @@ Python library and STM32F4 Discovery firmware to control the microcontroller's G
 Currently supported interfaces:
 I2C1
 GPIOs (A-E)
+SPI1
 
 Future support (hopefully):
 I2C2-3
-SPIx
+SPI2+
 ADC
 DAC
 UART
