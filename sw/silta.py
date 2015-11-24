@@ -80,13 +80,13 @@ class stm32f4bridge:
 		return rbytes
 
 	def gpiocfg(self, name, mode='input', pull=None):
-		m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
+		pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
-		if m is None:
+		if pinmatch is None:
 			raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')	
 
-		port = m.group(1)
-		pin = int(m.group(2))
+		port = pinmatch.group(1)
+		pin = int(pinmatch.group(2))
 
 		if pin > 15:
 			raise ValueError('Invalid pin. Should be a number from 0-15')
