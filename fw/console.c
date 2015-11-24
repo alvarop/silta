@@ -175,12 +175,12 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 			GPIO_TypeDef *GPIOx = NULL;
 
 			if ((port < 'A') || (port > 'E')) {
-				printf("ERR Invalid port");
+				printf("ERR Invalid port\n");
 				break;
 			}
 
 			if (pin > 15) {
-				printf("ERR Invalid pin");
+				printf("ERR Invalid pin\n");
 				break;
 			}
 
@@ -205,7 +205,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 			}
 		} while (0);
 	} else {
-		printf("ERR Invalid args");
+		printf("ERR Invalid args\n");
 	}
 }
 
@@ -222,12 +222,12 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 			GPIO_TypeDef *GPIOx = NULL;
 
 			if ((port < 'A') || (port > 'E')) {
-				printf("ERR Invalid port");
+				printf("ERR Invalid port\n");
 				break;
 			}
 
 			if (pin > 15) {
-				printf("ERR Invalid pin");
+				printf("ERR Invalid pin\n");
 				break;
 			}
 
@@ -261,7 +261,7 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 			printf("OK\n");
 		} while (0);
 	} else {
-		printf("ERR Invalid args");
+		printf("ERR Invalid args\n");
 	}
 }
 
