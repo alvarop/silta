@@ -125,6 +125,18 @@ int32_t spiConfig(uint32_t device, uint32_t speed, uint8_t cpol, uint8_t cpha) {
 	return rval;
 }
 
+int32_t spiSetCS(uint32_t device, GPIO_TypeDef* csPort, uint16_t csPin) {
+	int32_t rval = -1;
+	
+	if(device < sizeof(spiConfigs)/sizeof(spiConfig_t)) {
+		spiConfigs[device].csPort = csPort;
+		spiConfigs[device].csPin = csPin;
+		rval = 0;
+	}
+
+	return rval;
+}
+
 int32_t spi(uint32_t device, uint32_t rwLen, uint8_t *wBuff, uint8_t *rBuff) {
 	int32_t rval = -1;
 

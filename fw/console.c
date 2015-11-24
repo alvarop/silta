@@ -27,6 +27,7 @@ static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
 static void spiCmd(uint8_t argc, char *argv[]);
 static void spiCfgCmd(uint8_t argc, char *argv[]);
+static void spiSetCSCmd(uint8_t arcg, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
 
@@ -34,6 +35,7 @@ static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
+	{"spics", spiSetCSCmd, "<port[A-E]> <pin0-15>"},
 	{"config", cfgCmd, "<key> [value]"},
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
@@ -162,6 +164,35 @@ static void spiCfgCmd(uint8_t argc, char *argv[]) {
 		printf("OK\n");
 	}
 
+}
+
+static void spiSetCSCmd(uint8_t arcg, char *argv[]) {
+	do {
+		if(argc < 3) {
+			printf("ERR Invalid args\n");
+			break;
+		}
+
+		char port = toupper((uint32_t)argv[1][0]);
+		uint8_t pin = strtoul(argv[2], NULL, 10);
+		GPIO_TypeDef *GPIOx = NULL;
+
+		if ((port < 'A') || (port > 'E')) {
+			printf("ERR Invalid port\n");
+			break;
+		}
+
+		if (pin > 15) {
+			printf("ERR Invalid pin\n");
+			break;
+		}
+
+		GPIOx = (GPIO_TypeDef *)(GPIOA_BASE + (uint32_t)(port - 'A') * (GPIOB_BASE - GPIOA_BASE));
+
+		spiSetCS(0, GPIOx, pin);
+
+		printf("OK\n");
+	} while(0);
 }
 
 // 

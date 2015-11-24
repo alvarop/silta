@@ -5,6 +5,7 @@
 
 int32_t spiInit(uint32_t device);
 int32_t spiConfig(uint32_t device, uint32_t speed, uint8_t cpol, uint8_t cpha);
+int32_t spiSetCS(uint32_t device, GPIO_TypeDef* csPort, uint16_t csPin);
 int32_t spi(uint32_t device, uint32_t rwLen, uint8_t *wBuff, uint8_t *rBuff);
 
 #endif
