@@ -27,7 +27,7 @@ bridge.gpio(CS_PIN, 1)
 # Try reading the WHO_AM_I register from the LIS3DSH on teh discovery board
 txbuff = [0x8F, 0x00]
 
-rval = bridge.spi(txbuff)
+rval = bridge.spi(CS_PIN, txbuff)
 
 if isinstance(rval, list):
     print('WHO_AM_I register is: 0x' + format(rval[1], '02X') + ' (it should be 0x3F btw)')

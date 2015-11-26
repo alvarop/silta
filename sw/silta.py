@@ -64,7 +64,7 @@ class stm32f4bridge:
         if self.lastcspin != cspin:
             self.lastcspin = cspin
 
-            pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', pin)
+            pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', cspin)
 
             if pinmatch is None:
                 raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')   
