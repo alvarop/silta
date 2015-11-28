@@ -7,5 +7,7 @@ Currently supported interfaces: I2C1, GPIOs (A-E), SPI1
 Future support (hopefully): ADC, DAC, UART, I2C2-3, SPI2+
 
 For examples, see: https://github.com/alvarop/silta/tree/master/sw/examples
+
 For firmware build instructions, see: https://github.com/alvarop/silta/tree/master/fw
+
 For python module build instructions, see: https://github.com/alvarop/silta/tree/master/sw
