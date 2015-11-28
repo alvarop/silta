@@ -6,7 +6,7 @@
 
 import sys
 import time
-from silta import stm32f4bridge
+from silta import silta
 
 CS_PIN = 'PE3'
 
@@ -16,7 +16,7 @@ if len(sys.argv) < 2:
 
 stream_file = sys.argv[1]
 
-bridge = stm32f4bridge(stream_file)
+bridge = silta.stm32f4bridge(stream_file)
 
 # Set the CS line as an output
 bridge.gpiocfg(CS_PIN, 'output')

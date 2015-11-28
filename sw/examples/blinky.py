@@ -6,7 +6,7 @@
 
 import sys
 import time
-from silta import stm32f4bridge
+from silta import silta
 
 BLUE_LED = 'PD15'
 
@@ -16,7 +16,7 @@ if len(sys.argv) < 2:
 
 stream_file = sys.argv[1]
 
-bridge = stm32f4bridge(stream_file)
+bridge = silta.stm32f4bridge(stream_file)
 
 # Enable the blue LED
 bridge.gpiocfg(BLUE_LED, 'output')
