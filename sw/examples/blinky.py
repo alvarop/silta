@@ -11,7 +11,7 @@ from silta import stm32f4bridge
 BLUE_LED = 'PD15'
 
 if len(sys.argv) < 2:
-    print 'Usage: ', sys.argv[0], '/path/to/serial/device'
+    print('Usage: ' + sys.argv[0] + '/path/to/serial/device')
     sys.exit()
 
 stream_file = sys.argv[1]

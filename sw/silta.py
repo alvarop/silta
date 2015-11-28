@@ -27,7 +27,10 @@ class stm32f4bridge:
         self.lastcspin = None
 
         try:
-            self.stream = serial.Serial(serial_device, timeout=0.1)
+            self.stream = serial.Serial()
+            self.stream.port = serial_device
+            self.stream.timeout = 0.1
+            self.stream.open()
         except OSError:
             raise IOError('could not open ' + serial_device)
         
