@@ -11,3 +11,8 @@ For examples, see: https://github.com/alvarop/silta/tree/master/sw/examples
 For firmware build instructions, see: https://github.com/alvarop/silta/tree/master/fw
 
 For python module build instructions, see: https://github.com/alvarop/silta/tree/master/sw
+
+### Installation Instructions
+
+You should be able to use pip to get the silta python module using:
+`pip install silta`
