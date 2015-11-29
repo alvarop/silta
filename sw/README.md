@@ -5,6 +5,11 @@ Python library and STM32F4 Discovery firmware to control the microcontroller's G
 Currently supported interfaces: I2C1, GPIOs (A-E), SPI1
 Future support (hopefully): ADC, DAC, UART, I2C2-3, SPI2+
 
+### Installation
+
+You should be able to use pip to get the silta python module using:
+`pip install silta`
+
 ## Local Python Module Installation for Development
 
 I recommend using virtualenv while working on Silta. See: http://the-hitchhikers-guide-to-packaging.readthedocs.org/en/latest/pip.html
