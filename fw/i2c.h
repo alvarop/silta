@@ -8,6 +8,7 @@ typedef enum {
 	I2C_OK = 0,
 	I2C_ANACK = -1,
 	I2C_DNACK = -2,
+	I2C_TIMEOUT = -3,
 	I2C_ERR
 } i2cReturn_t;
 
