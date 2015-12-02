@@ -40,6 +40,22 @@ class stm32f4bridge:
     def close(self):
         self.stream.close()
 
+    def i2c_speed(self, speed):
+        rbytes = []
+        cmd = 'config i2cspeed ' + str(speed)
+
+        self.stream.write(cmd + '\n')
+
+        line = self.stream.readline()
+
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
+
+        else:
+            return False
+
     def i2c(self, addr, rlen, wbytes):
         rbytes = []
         cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
