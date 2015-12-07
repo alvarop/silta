@@ -10,6 +10,7 @@
 #include "i2c.h"
 #include "spi.h"
 #include "gpio.h"
+#include "adc.h"
 
 typedef struct {
 	char *commandStr;
@@ -276,6 +277,13 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 			} else if (strcmp("outpp", argv[3]) == 0) {
 				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
 				gpioSettings.GPIO_OType = GPIO_OType_OD;
+			} else if (strcmp("analog", argv[3]) == 0) {
+				if(isAdcPin(GPIOx, pin)) {
+					gpioSettings.GPIO_Mode = GPIO_Mode_AN;
+				} else {
+					printf("ERR Not an analog pin\n");
+					break;
+				}
 			}
 
 			if (argc > 4) {
