@@ -164,14 +164,13 @@ static void adcCmd(uint8_t arcg, char *argv[]) {
 		}
 
 		uint8_t pin = strtoul(argv[1], NULL, 10);
-		GPIO_TypeDef *GPIOx = NULL;
 
 		if (pin > 15) {
 			printf("ERR Invalid pin\n");
 			break;
 		}
 
-		adcVal = adcGetPin(GPIOx, pin);
+		adcVal = adcRead(pin);
 
 		if(adcVal >= 0) {
 			printf("OK %ld\n", adcVal);
