@@ -27,7 +27,10 @@ class stm32f4bridge:
         self.lastcspin = None
 
         try:
-            self.stream = serial.Serial(serial_device, timeout=0.1)
+            self.stream = serial.Serial()
+            self.stream.port = serial_device
+            self.stream.timeout = 0.1
+            self.stream.open()
         except OSError:
             raise IOError('could not open ' + serial_device)
         
@@ -36,6 +39,22 @@ class stm32f4bridge:
 
     def close(self):
         self.stream.close()
+
+    def i2c_speed(self, speed):
+        rbytes = []
+        cmd = 'config i2cspeed ' + str(speed)
+
+        self.stream.write(cmd + '\n')
+
+        line = self.stream.readline()
+
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
+
+        else:
+            return False
 
     def i2c(self, addr, rlen, wbytes):
         rbytes = []
@@ -64,7 +83,7 @@ class stm32f4bridge:
         if self.lastcspin != cspin:
             self.lastcspin = cspin
 
-            pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', pin)
+            pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', cspin)
 
             if pinmatch is None:
                 raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')   

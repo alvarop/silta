@@ -6,7 +6,7 @@
 
 import sys
 import time
-from silta import stm32f4bridge
+from silta import silta
 import matplotlib.pyplot as plt
 
 def readRegs(bridge, reg, count):
@@ -60,12 +60,12 @@ CTRL_REG1 = 0x2A
 connected = False
 
 if len(sys.argv) < 2:
-    print 'Usage: ', sys.argv[0], '/path/to/serial/device'
+    print('Usage: ' + sys.argv[0] + '/path/to/serial/device')
     sys.exit()
 
 stream_file = sys.argv[1]
 
-bridge = stm32f4bridge(stream_file)
+bridge = silta.stm32f4bridge(stream_file)
 
 whoami = readReg(bridge, WHO_AM_I)
 

@@ -2,3 +2,5 @@
 fw/build
 *.a
 *.o
+sw/silta.egg-info
+sw/dist

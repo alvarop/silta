@@ -6,17 +6,17 @@
 
 import sys
 import time
-from silta import stm32f4bridge
+from silta import silta
 
 CS_PIN = 'PE3'
 
 if len(sys.argv) < 2:
-    print 'Usage: ', sys.argv[0], '/path/to/serial/device'
+    print('Usage: ' + sys.argv[0] + '/path/to/serial/device')
     sys.exit()
 
 stream_file = sys.argv[1]
 
-bridge = stm32f4bridge(stream_file)
+bridge = silta.stm32f4bridge(stream_file)
 
 # Set the CS line as an output
 bridge.gpiocfg(CS_PIN, 'output')
@@ -27,7 +27,7 @@ bridge.gpio(CS_PIN, 1)
 # Try reading the WHO_AM_I register from the LIS3DSH on teh discovery board
 txbuff = [0x8F, 0x00]
 
-rval = bridge.spi(txbuff)
+rval = bridge.spi(CS_PIN, txbuff)
 
 if isinstance(rval, list):
     print('WHO_AM_I register is: 0x' + format(rval[1], '02X') + ' (it should be 0x3F btw)')
