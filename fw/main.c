@@ -13,6 +13,7 @@
 #include "i2c.h"
 #include "spi.h"
 #include "gpio.h"
+#include "adc.h"
 
 #define BLINK_DELAY_MS	(500)
 
@@ -29,6 +30,7 @@ int main(void) {
 	init();
 
 	gpioInit();
+	adcInit();
 	i2cSetup(100000);
 	spiInit(0);
 	spiConfig(0, 1000000, 1, 1);
