@@ -12,7 +12,8 @@ class stm32f4bridge:
     pinModes = {
         'input': 'in',
         'output': 'outpp',
-        'output-od': 'outod'
+        'output-od': 'outod',
+        'analog': 'analog'
     }
 
     pullModes = {
@@ -20,6 +21,8 @@ class stm32f4bridge:
         'down': 'pulldown',
         'none': 'nopull'
     }
+
+    adcs = {}
 
     def __init__(self, serial_device):
         self.stream = None
@@ -188,6 +191,54 @@ class stm32f4bridge:
                 return
             else:
                 return int(result[1])
+        else:
+            return None
+
+    def adc_get_num(self, name):
+        m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
+
+        if m is None:
+            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')  
+
+        port = m.group(1)
+        pin = int(m.group(2))
+
+        if pin > 15:
+            raise ValueError('Invalid pin. Should be a number from 0-15')
+
+        cmd = 'adcnum' + port + ' ' + str(pin)
+
+        self.stream.write(cmd + '\n')
+
+        line = self.stream.readline()
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            self.adcs[name] = int(result[1])
+        else:
+            self.adcs[name] = None
+
+    def adc(self, name):
+
+        # Get adc number from port+pin and save it
+        if name not in self.adcs:
+            self.adc_get_num(name)
+
+        if self.adcs[name] is None:
+            raise ValueError('Not an ADC pin')
+
+        cmd = 'adc ' + str(self.adcs[name]) 
+
+        if value != None:
+            cmd += ' ' + str(value)
+
+        self.stream.write(cmd + '\n')
+
+        line = self.stream.readline()
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+                return int(result[1]) * 3.3/4096
         else:
             return None
 
