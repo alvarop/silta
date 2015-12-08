@@ -11,6 +11,7 @@
 #include "spi.h"
 #include "gpio.h"
 #include "adc.h"
+#include "dac.h"
 
 typedef struct {
 	char *commandStr;
@@ -28,6 +29,7 @@ static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
 static void adcCmd(uint8_t argc, char *argv[]);
 static void adcNumCmd(uint8_t argc, char *argv[]);
+static void dacCmd(uint8_t argc, char *argv[]);
 static void spiCmd(uint8_t argc, char *argv[]);
 static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void spiSetCSCmd(uint8_t arcg, char *argv[]);
@@ -38,6 +40,7 @@ static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
 	{"adcnum", adcNumCmd, "adcnum <port[A-E]> <pin0-15>"},
 	{"adc", adcCmd, "adc <adc_num>"},
+	{"dac", dacCmd, "adc <dac_num> <val>"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
 	{"spics", spiSetCSCmd, "<port[A-E]> <pin0-15>"},
@@ -177,6 +180,29 @@ static void adcCmd(uint8_t arcg, char *argv[]) {
 		} else {
 			printf("ERR Invalid adcnum\n");
 		}
+
+	} while(0);
+}
+
+static void dacCmd(uint8_t arcg, char *argv[]) {
+	do {
+
+		if(argc < 3) {
+			printf("ERR Invalid args\n");
+			break;
+		}
+
+		uint8_t dac = strtoul(argv[1], NULL, 10);
+		uint8_t val = strtoul(argv[2], NULL, 10);
+
+		if (dac > 1) {
+			printf("ERR Invalid dac\n");
+			break;
+		}
+
+		dacSet(dac, val);
+
+		printf("OK\n");
 
 	} while(0);
 }
