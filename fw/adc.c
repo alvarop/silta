@@ -43,20 +43,20 @@ int32_t adcInit() {
 	return 0;
 }
 
-bool isAdcPin(GPIO_TypeDef *port, uint8_t pin) {
-	bool isAdc = false;
+int32_t adcGetPin(GPIO_TypeDef *port, uint8_t pin) {
+	int32_t adcPin = -1;
 	for(uint32_t index = 0; index < (sizeof(adcs)/sizeof(adcChannel_t)); index++) {
 		if((port == adcs[index].adcPort) && (pin == adcs[index].adcPin)) {
-			isAdc = true;
+			adcPin = index;
 			break;
 		}
 	}
 
-	return isAdc;
+	return adcPin;
 }
 
-uint16_t adcRead(uint8_t adc) {
-	uint16_t rval = 0;
+int32_t adcRead(uint8_t adc) {
+	int32_t rval = -1;
 
 	if(adc < sizeof(adcs)/sizeof(adcChannel_t)) {
 		ADC_RegularChannelConfig(adcs[adc].adc, adcs[adc].adcChannel, 1, ADC_SampleTime_144Cycles);

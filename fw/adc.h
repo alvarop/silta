@@ -2,5 +2,5 @@
 #include <stdbool.h>
 
 int32_t adcInit();
-bool isAdcPin(GPIO_TypeDef *port, uint8_t pin);
-uint16_t adcRead(uint8_t adc);
+int32_t adcGetPin(GPIO_TypeDef *port, uint8_t pin);
+int32_t adcRead(uint8_t adc);

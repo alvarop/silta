@@ -26,6 +26,8 @@ static char* argv[8];
 
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
+static void adcCmd(uint8_t argc, char *argv[]);
+static void adcNumCmd(uint8_t argc, char *argv[]);
 static void spiCmd(uint8_t argc, char *argv[]);
 static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void spiSetCSCmd(uint8_t arcg, char *argv[]);
@@ -34,6 +36,8 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
+	{"adcnum", adcNumCmd, "adcnum <port[A-E]> <pin0-15>"},
+	{"adc", adcCmd, "adc <adc_num>"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
 	{"spics", spiSetCSCmd, "<port[A-E]> <pin0-15>"},
@@ -114,6 +118,68 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		}
 
 	} while (0);
+}
+
+static void adcNumCmd(uint8_t arcg, char *argv[]) {
+	do {
+		int32_t adcNum;
+		if(argc < 3) {
+			printf("ERR Invalid args\n");
+			break;
+		}
+
+		char port = toupper((uint32_t)argv[1][0]);
+		uint8_t pin = strtoul(argv[2], NULL, 10);
+		GPIO_TypeDef *GPIOx = NULL;
+
+		if ((port < 'A') || (port > 'E')) {
+			printf("ERR Invalid port\n");
+			break;
+		}
+
+		if (pin > 15) {
+			printf("ERR Invalid pin\n");
+			break;
+		}
+
+		GPIOx = (GPIO_TypeDef *)(GPIOA_BASE + (uint32_t)(port - 'A') * (GPIOB_BASE - GPIOA_BASE));
+
+		adcNum = adcGetPin(GPIOx, pin);
+
+		if(adcNum >= 0) {
+			printf("OK %ld\n", adcNum);
+		} else {
+			printf("ERR Not an adc pin\n");
+		}
+
+	} while(0);
+}
+
+static void adcCmd(uint8_t arcg, char *argv[]) {
+	do {
+		int32_t adcVal;
+		if(argc < 2) {
+			printf("ERR Invalid args\n");
+			break;
+		}
+
+		uint8_t pin = strtoul(argv[1], NULL, 10);
+		GPIO_TypeDef *GPIOx = NULL;
+
+		if (pin > 15) {
+			printf("ERR Invalid pin\n");
+			break;
+		}
+
+		adcVal = adcGetPin(GPIOx, pin);
+
+		if(adcVal >= 0) {
+			printf("OK %ld\n", adcVal);
+		} else {
+			printf("ERR Invalid adcnum\n");
+		}
+
+	} while(0);
 }
 
 #define SPI_WBUFF_OFFSET (1)
@@ -278,7 +344,7 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
 				gpioSettings.GPIO_OType = GPIO_OType_OD;
 			} else if (strcmp("analog", argv[3]) == 0) {
-				if(isAdcPin(GPIOx, pin)) {
+				if(adcGetPin(GPIOx, pin) >= 0) {
 					gpioSettings.GPIO_Mode = GPIO_Mode_AN;
 				} else {
 					printf("ERR Not an analog pin\n");
