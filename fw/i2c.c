@@ -67,7 +67,7 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 		}
 
 		if (tickMs > timeout) {
-			i2cErr = I2C_TIMEOUT;
+			rval = I2C_TIMEOUT;
 			break;
 		}
 
@@ -83,7 +83,7 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			}
 
 			if (tickMs > timeout) {
-				i2cErr = I2C_TIMEOUT;
+				rval = I2C_TIMEOUT;
 				break;
 			}
 
@@ -133,7 +133,7 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			}
 
 			if (tickMs > timeout) {
-				i2cErr = I2C_TIMEOUT;
+				rval = I2C_TIMEOUT;
 				break;
 			}
 
