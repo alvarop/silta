@@ -29,10 +29,10 @@ class stm32f4bridge:
         'PA5': 1
     }
 
-    ADC_MAX_VOLTAGE = 3.3
+    ADC_MAX_VOLTAGE = 3.0
     ADC_MAX_VAL = 4095
 
-    DAC_MAX_VOLTAGE = 3.3
+    DAC_MAX_VOLTAGE = 3.0
     DAC_MAX_VAL = 4095
 
     DEBUG = False
@@ -56,6 +56,7 @@ class stm32f4bridge:
     def close(self):
         self.stream.close()
 
+    # Send terminal command and wait for response
     def send_cmd(self, cmd):
         self.stream.write(cmd + '\n')
         if self.DEBUG is True:
@@ -67,12 +68,12 @@ class stm32f4bridge:
 
         return line
 
+    # Set I2C Speed
     def i2c_speed(self, speed):
         rbytes = []
         cmd = 'config i2cspeed ' + str(speed)
 
         line = self.send_cmd(cmd)
-
 
         result = line.strip().split(' ')
 
@@ -82,7 +83,8 @@ class stm32f4bridge:
         else:
             return False
 
-    def i2c(self, addr, rlen, wbytes):
+    # I2C Transaction (wbytes is a list of bytes to tx)
+    def i2c(self, addr, rlen, wbytes = []):
         rbytes = []
         cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
 
@@ -91,18 +93,17 @@ class stm32f4bridge:
 
         line = self.send_cmd(cmd)
 
-
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
             for byte in result[1:]:
                 rbytes.append(int(byte, 16))
-
         else:
             rbytes = int(result[1])
 
         return rbytes
 
+    # Set the spi CS line to use on the next transaction
     def set_spi_cs(self, cspin):
         # Only configure CS if we haven't already
         if self.lastcspin != cspin:
@@ -128,7 +129,8 @@ class stm32f4bridge:
             if result[0] != 'OK':
                 raise ValueError('Unable to configure SPI CS pin')
 
-    def spi(self, cspin, wbytes):
+    # SPI Transaction (wbytes is list of bytes)
+    def spi(self, cspin, wbytes = []):
         rbytes = []
 
         # Make sure the CS pin is selected
@@ -153,6 +155,7 @@ class stm32f4bridge:
 
         return rbytes
 
+    # Configure GPIO as input/output/etc
     def gpiocfg(self, name, mode='input', pull=None):
         pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
@@ -183,6 +186,7 @@ class stm32f4bridge:
         if result[0] != 'OK':
             print("Error configuring pin")
 
+    # Read/write gpio value
     def gpio(self, name, value = None):
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
@@ -212,7 +216,8 @@ class stm32f4bridge:
         else:
             return None
 
-    def adc_get_num(self, name):
+    # 'Private' function to get an ADC number from a port + pin combination
+    def __adc_get_num(self, name):
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if m is None:
@@ -224,7 +229,7 @@ class stm32f4bridge:
         if pin > 15:
             raise ValueError('Invalid pin. Should be a number from 0-15')
 
-        cmd = 'adcnum' + port + ' ' + str(pin)
+        cmd = 'adcnum ' + port + ' ' + str(pin)
 
         line = self.send_cmd(cmd)
 
@@ -235,21 +240,19 @@ class stm32f4bridge:
         else:
             self.adcs[name] = None
 
+    # Read adc pin
     def adc(self, name):
 
         name = name.upper()
 
         # Get adc number from port+pin and save it
         if name not in self.adcs:
-            self.adc_get_num(name)
+            self.__adc_get_num(name)
 
         if self.adcs[name] is None:
             raise ValueError('Not an ADC pin')
 
         cmd = 'adc ' + str(self.adcs[name])
-
-        if value != None:
-            cmd += ' ' + str(value)
 
         line = self.send_cmd(cmd)
 
@@ -260,6 +263,7 @@ class stm32f4bridge:
         else:
             return None
 
+    # Set DAC output for pin
     def dac(self, name, voltage):
         
         name = name.upper()
@@ -270,9 +274,11 @@ class stm32f4bridge:
         if voltage > self.DAC_MAX_VOLTAGE:
             voltage = self.DAC_MAX_VOLTAGE
 
-        dac_val = voltage/self.DAC_MAX_VOLTAGE * self.DAC_MAX_VAL
+        dac_val = int(voltage/self.DAC_MAX_VOLTAGE * self.DAC_MAX_VAL)
 
-        line = self.send_cmd('dac ' + self.dacs[name] + ' ' + str(dac_val))
+        line = self.send_cmd('dac ' + str(self.dacs[name]) + ' ' + str(dac_val))
+
+        result = line.strip().split(' ')
 
         if result[0] == 'OK':
             return True

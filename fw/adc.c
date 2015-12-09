@@ -35,6 +35,8 @@ static adcChannel_t adcs[] = {
 int32_t adcInit() {
 	ADC_InitTypeDef adcConfig;
 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); 
+
 	ADC_DeInit();
 	ADC_StructInit(&adcConfig);
 	ADC_Init(ADC1, &adcConfig);

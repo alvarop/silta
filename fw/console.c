@@ -193,7 +193,7 @@ static void dacCmd(uint8_t arcg, char *argv[]) {
 		}
 
 		uint8_t dac = strtoul(argv[1], NULL, 10);
-		uint8_t val = strtoul(argv[2], NULL, 10);
+		uint16_t val = strtoul(argv[2], NULL, 10);
 
 		if (dac > 1) {
 			printf("ERR Invalid dac\n");
