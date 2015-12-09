@@ -2,9 +2,9 @@
 
 Python library and STM32F4 Discovery firmware to control the microcontroller's GPIOs and serial interfaces directly from python. This allows for intefacing with external devices quickly without having to write any firmware!
 
-Currently supported interfaces: I2C1, GPIOs (A-E), SPI1
+Currently supported interfaces: I2C1, GPIOs (A-E), SPI1, ADCs, DACs
 
-Future support (hopefully): ADC, DAC, UART, I2C2-3, SPI2+
+Future support (hopefully): UART, I2C2-3, SPI2+
 
 For examples, see: https://github.com/alvarop/silta/tree/master/sw/examples
 
