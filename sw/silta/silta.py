@@ -24,6 +24,8 @@ class stm32f4bridge:
 
     adcs = {}
 
+    DEBUG = False
+
     def __init__(self, serial_device):
         self.stream = None
 
@@ -36,20 +38,30 @@ class stm32f4bridge:
             self.stream.open()
         except OSError:
             raise IOError('could not open ' + serial_device)
-        
+
         if self.stream:
             self.stream.flush()
 
     def close(self):
         self.stream.close()
 
+    def send_cmd(self, cmd):
+        self.stream.write(cmd + '\n')
+        if self.DEBUG is True:
+            print 'CMD : ' + cmd
+
+        line = self.stream.readline()
+        if self.DEBUG is True:
+            print 'RESP: ' + line,
+
+        return line
+
     def i2c_speed(self, speed):
         rbytes = []
         cmd = 'config i2cspeed ' + str(speed)
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
 
         result = line.strip().split(' ')
 
@@ -62,13 +74,12 @@ class stm32f4bridge:
     def i2c(self, addr, rlen, wbytes):
         rbytes = []
         cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
-        
+
         for byte in wbytes:
             cmd += format(byte, ' 02X')
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
 
         result = line.strip().split(' ')
 
@@ -89,7 +100,7 @@ class stm32f4bridge:
             pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', cspin)
 
             if pinmatch is None:
-                raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')   
+                raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
 
             port = pinmatch.group(1)
             pin = int(pinmatch.group(2))
@@ -99,9 +110,8 @@ class stm32f4bridge:
 
             cmd = 'spics ' + port + ' ' + str(pin)
 
-            self.stream.write(cmd + '\n')
+            line = self.send_cmd(cmd)
 
-            line = self.stream.readline()
             result = line.strip().split(' ')
 
             if result[0] != 'OK':
@@ -114,13 +124,12 @@ class stm32f4bridge:
         self.set_spi_cs(cspin)
 
         cmd = 'spi'
-        
+
         for byte in wbytes:
             cmd += format(byte, ' 02X')
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
 
         result = line.strip().split(' ')
 
@@ -137,7 +146,7 @@ class stm32f4bridge:
         pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if pinmatch is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')  
+            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
 
         port = pinmatch.group(1)
         pin = int(pinmatch.group(2))
@@ -149,16 +158,15 @@ class stm32f4bridge:
             raise ValueError('Invalid pin mode. Valid modes: <' + string.join(self.pinModes.keys(), '|') + '>')
 
         if pull != None and pull not in self.pullModes:
-            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(self.pullModes.keys(), '|') + '>')           
+            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(self.pullModes.keys(), '|') + '>')
 
         cmd = 'gpiocfg ' + port + ' ' + str(pin) + ' ' + self.pinModes[mode]
 
         if pull != None:
             cmd += ' ' + self.pullModes[pull]
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
         result = line.strip().split(' ')
 
         if result[0] != 'OK':
@@ -168,22 +176,21 @@ class stm32f4bridge:
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if m is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')  
+            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
 
         port = m.group(1)
         pin = int(m.group(2))
 
         if pin > 15:
-            raise ValueError('Invalid pin. Should be a number from 0-15')   
+            raise ValueError('Invalid pin. Should be a number from 0-15')
 
         cmd = 'gpio ' + port + ' ' + str(pin)
 
         if value != None:
             cmd += ' ' + str(value)
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
@@ -198,7 +205,7 @@ class stm32f4bridge:
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if m is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')  
+            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
 
         port = m.group(1)
         pin = int(m.group(2))
@@ -208,9 +215,8 @@ class stm32f4bridge:
 
         cmd = 'adcnum' + port + ' ' + str(pin)
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
@@ -227,14 +233,13 @@ class stm32f4bridge:
         if self.adcs[name] is None:
             raise ValueError('Not an ADC pin')
 
-        cmd = 'adc ' + str(self.adcs[name]) 
+        cmd = 'adc ' + str(self.adcs[name])
 
         if value != None:
             cmd += ' ' + str(value)
 
-        self.stream.write(cmd + '\n')
+        line = self.send_cmd(cmd)
 
-        line = self.stream.readline()
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
