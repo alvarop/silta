@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 
 #
-# Read PA1 value and print it out
+# Read PA1 value (NUM_SAMPLES) times and plot it
 #
 
 import sys
+import time
 from silta import silta
+import matplotlib.pyplot as plt
 
 ADC_PIN = 'PA1'
+
+NUM_SAMPLES = 1000
 
 if len(sys.argv) < 2:
     print('Usage: ' + sys.argv[0] + '/path/to/serial/device')
@@ -20,8 +24,13 @@ bridge = silta.stm32f4bridge(stream_file)
 # Configure pin as an analog input
 bridge.gpiocfg(ADC_PIN, 'analog')
 
-value = bridge.adc(ADC_PIN)
+values = []
+for i in range(NUM_SAMPLES):
+    values.append(bridge.adc(ADC_PIN))
+    time.sleep(0.001)
 
-print(ADC_PIN + ' Voltage: ' + str(value))
+plt.plot(values)
+plt.title(ADC_PIN)
+plt.show()
 
 bridge.close()
