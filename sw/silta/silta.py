@@ -24,6 +24,17 @@ class stm32f4bridge:
 
     adcs = {}
 
+    dacs = {
+        'PA4': 0,
+        'PA5': 1
+    }
+
+    ADC_MAX_VOLTAGE = 3.3
+    ADC_MAX_VAL = 4095
+
+    DAC_MAX_VOLTAGE = 3.3
+    DAC_MAX_VAL = 4095
+
     DEBUG = False
 
     def __init__(self, serial_device):
@@ -226,6 +237,8 @@ class stm32f4bridge:
 
     def adc(self, name):
 
+        name = name.upper()
+
         # Get adc number from port+pin and save it
         if name not in self.adcs:
             self.adc_get_num(name)
@@ -243,7 +256,25 @@ class stm32f4bridge:
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
-                return int(result[1]) * 3.3/4096
+            return int(result[1]) * self.ADC_MAX_VOLTAGE/self.ADC_MAX_VAL
         else:
             return None
 
+    def dac(self, name, voltage):
+        
+        name = name.upper()
+
+        if name not in self.dacs:
+            raise ValueError('Not a DAC pin')
+
+        if voltage > self.DAC_MAX_VOLTAGE:
+            voltage = self.DAC_MAX_VOLTAGE
+
+        dac_val = voltage/self.DAC_MAX_VOLTAGE * self.DAC_MAX_VAL
+
+        line = self.send_cmd('dac ' + self.dacs[name] + ' ' + str(dac_val))
+
+        if result[0] == 'OK':
+            return True
+        else:
+            return None
