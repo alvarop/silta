@@ -5,7 +5,7 @@ import string
 import sys
 import re
 
-class stm32f4bridge:
+class bridge:
     ''' Silta STM32F407 Discovery Bridge '''
 
     __pinModes = {

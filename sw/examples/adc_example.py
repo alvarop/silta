@@ -5,7 +5,7 @@
 #
 
 import sys
-from silta import silta
+from silta import stm32f407
 
 ADC_PIN = 'PA1'
 
@@ -15,7 +15,7 @@ if len(sys.argv) < 2:
 
 stream_file = sys.argv[1]
 
-bridge = silta.stm32f4bridge(stream_file)
+bridge = stm32f407.bridge(stream_file)
 
 # Configure pin as an analog input
 bridge.gpiocfg(ADC_PIN, 'analog')

@@ -7,7 +7,7 @@
 import sys
 import time
 import math
-from silta import silta
+from silta import stm32f407
 
 DAC_PIN = 'PA5'
 
@@ -17,7 +17,7 @@ if len(sys.argv) < 2:
 
 stream_file = sys.argv[1]
 
-bridge = silta.stm32f4bridge(stream_file)
+bridge = stm32f407.bridge(stream_file)
 
 # Configure pin as DAC (TODO, currently always a DAC)
 # bridge.gpiocfg(DAC_PIN, 'analog')
