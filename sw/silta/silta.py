@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-#
-# Test python-to-i2c bridge with STM32F407
-#
+''' Silta STM32F407 Discovery Bridge '''
 
 import serial
 import string
@@ -9,35 +6,43 @@ import sys
 import re
 
 class stm32f4bridge:
-    pinModes = {
+    ''' Silta STM32F407 Discovery Bridge '''
+
+    __pinModes = {
         'input': 'in',
         'output': 'outpp',
         'output-od': 'outod',
         'analog': 'analog'
     }
 
-    pullModes = {
+    __pullModes = {
         'up': 'pullup',
         'down': 'pulldown',
         'none': 'nopull'
     }
 
-    adcs = {}
+    __adcs = {}
 
-    dacs = {
+    __dacs = {
         'PA4': 0,
         'PA5': 1
     }
 
-    ADC_MAX_VOLTAGE = 3.0
-    ADC_MAX_VAL = 4095
+    __ADC_MAX_VOLTAGE = 3.0
+    __ADC_MAX_VAL = 4095
 
-    DAC_MAX_VOLTAGE = 3.0
-    DAC_MAX_VAL = 4095
+    __DAC_MAX_VOLTAGE = 3.0
+    __DAC_MAX_VAL = 4095
 
     DEBUG = False
 
     def __init__(self, serial_device):
+        ''' Initialize Silta STM32F407 Bridge
+
+            Arguments:
+            USB serial device path (e.g. /dev/ttyACMX, /dev/cu.usbmodemXXXXX)
+        '''
+
         self.stream = None
 
         self.lastcspin = None
@@ -54,10 +59,11 @@ class stm32f4bridge:
             self.stream.flush()
 
     def close(self):
+        ''' Disconnect from USB-serial device. '''
         self.stream.close()
 
     # Send terminal command and wait for response
-    def send_cmd(self, cmd):
+    def __send_cmd(self, cmd):
         self.stream.write(cmd + '\n')
         if self.DEBUG is True:
             print 'CMD : ' + cmd
@@ -70,10 +76,11 @@ class stm32f4bridge:
 
     # Set I2C Speed
     def i2c_speed(self, speed):
+        ''' Set I2C speed in Hz. '''
         rbytes = []
         cmd = 'config i2cspeed ' + str(speed)
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
@@ -85,13 +92,26 @@ class stm32f4bridge:
 
     # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):
+        ''' I2C Transaction (write-then-read)
+            
+            Arguments:
+            addr - 8 bit I2C address
+            rlen - Number of bytes to read
+            wbytes - List of bytes to write
+
+            Return value:
+            Integer with error code
+            or
+            List with read bytes (or empty list if write-only command)
+        '''
+
         rbytes = []
         cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
 
         for byte in wbytes:
             cmd += format(byte, ' 02X')
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
@@ -104,7 +124,9 @@ class stm32f4bridge:
         return rbytes
 
     # Set the spi CS line to use on the next transaction
-    def set_spi_cs(self, cspin):
+    def __set_spi_cs(self, cspin):
+        ''' Select SPI chip select pin for next transaction '''
+
         # Only configure CS if we haven't already
         if self.lastcspin != cspin:
             self.lastcspin = cspin
@@ -122,7 +144,7 @@ class stm32f4bridge:
 
             cmd = 'spics ' + port + ' ' + str(pin)
 
-            line = self.send_cmd(cmd)
+            line = self.__send_cmd(cmd)
 
             result = line.strip().split(' ')
 
@@ -131,17 +153,28 @@ class stm32f4bridge:
 
     # SPI Transaction (wbytes is list of bytes)
     def spi(self, cspin, wbytes = []):
+        ''' SPI Transaction
+
+            Arguments:
+            cspin - Chip/Slave select pin for transaction
+            wbytes - List of bytes to write out
+
+            Return Values:
+            Integer error code
+            or
+            List of read bytes
+        '''
         rbytes = []
 
         # Make sure the CS pin is selected
-        self.set_spi_cs(cspin)
+        self.__set_spi_cs(cspin)
 
         cmd = 'spi'
 
         for byte in wbytes:
             cmd += format(byte, ' 02X')
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
 
         result = line.strip().split(' ')
@@ -157,6 +190,21 @@ class stm32f4bridge:
 
     # Configure GPIO as input/output/etc
     def gpiocfg(self, name, mode='input', pull=None):
+        ''' GPIO Configuration
+
+            Arguments:
+            name - Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
+            mode - Pin mode 
+                Available modes:
+                input - Digital Input
+                output - Push-pull output
+                output-od - Open drain output
+                analog - Analog input
+            pull - 
+                None (default) - No pull
+                up - Pull-up
+                down - Pull-down
+        '''
         pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if pinmatch is None:
@@ -168,18 +216,18 @@ class stm32f4bridge:
         if pin > 15:
             raise ValueError('Invalid pin. Should be a number from 0-15')
 
-        if mode not in self.pinModes:
-            raise ValueError('Invalid pin mode. Valid modes: <' + string.join(self.pinModes.keys(), '|') + '>')
+        if mode not in self.__pinModes:
+            raise ValueError('Invalid pin mode. Valid modes: <' + string.join(self.__pinModes.keys(), '|') + '>')
 
-        if pull != None and pull not in self.pullModes:
-            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(self.pullModes.keys(), '|') + '>')
+        if pull != None and pull not in self.__pullModes:
+            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(self.__pullModes.keys(), '|') + '>')
 
-        cmd = 'gpiocfg ' + port + ' ' + str(pin) + ' ' + self.pinModes[mode]
+        cmd = 'gpiocfg ' + port + ' ' + str(pin) + ' ' + self.__pinModes[mode]
 
         if pull != None:
-            cmd += ' ' + self.pullModes[pull]
+            cmd += ' ' + self.__pullModes[pull]
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
@@ -188,6 +236,16 @@ class stm32f4bridge:
 
     # Read/write gpio value
     def gpio(self, name, value = None):
+        ''' Read/Write GPIO (Digital only for now)
+
+            name - Pin name (e.g. PA3, PD11, PB0)
+            value (If setting) - 0 or 1
+
+            Return Values:
+            None - if set was succesful
+            None - if get failed
+            Integer - pin value
+        '''
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if m is None:
@@ -204,7 +262,7 @@ class stm32f4bridge:
         if value != None:
             cmd += ' ' + str(value)
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
@@ -218,6 +276,8 @@ class stm32f4bridge:
 
     # 'Private' function to get an ADC number from a port + pin combination
     def __adc_get_num(self, name):
+        ''' Get ADC number from pin name '''
+
         m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
 
         if m is None:
@@ -231,52 +291,71 @@ class stm32f4bridge:
 
         cmd = 'adcnum ' + port + ' ' + str(pin)
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
-            self.adcs[name] = int(result[1])
+            self.__adcs[name] = int(result[1])
         else:
-            self.adcs[name] = None
+            self.__adcs[name] = None
 
     # Read adc pin
     def adc(self, name):
+        ''' Read ADC pin
+
+            Arguments:
+            name - Pin name
+
+            Return Values:
+            None - if read failed
+            float - Pin value in volts
+        '''
 
         name = name.upper()
 
         # Get adc number from port+pin and save it
-        if name not in self.adcs:
+        if name not in self.__adcs:
             self.__adc_get_num(name)
 
-        if self.adcs[name] is None:
+        if self.__adcs[name] is None:
             raise ValueError('Not an ADC pin')
 
-        cmd = 'adc ' + str(self.adcs[name])
+        cmd = 'adc ' + str(self.__adcs[name])
 
-        line = self.send_cmd(cmd)
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
-            return int(result[1]) * self.ADC_MAX_VOLTAGE/self.ADC_MAX_VAL
+            return int(result[1]) * self.__ADC_MAX_VOLTAGE/self.__ADC_MAX_VAL
         else:
             return None
 
     # Set DAC output for pin
     def dac(self, name, voltage):
+        ''' Set DAC Output
+
+            Arguments:
+            name - DAC pin (Supported pins: PA4 and PA5)
+            voltage - Voltage setting for pin
+
+            Return Values:
+            None - Failed setting DAC value
+            True - Value set successfully
+        '''
         
         name = name.upper()
 
-        if name not in self.dacs:
+        if name not in self.__dacs:
             raise ValueError('Not a DAC pin')
 
-        if voltage > self.DAC_MAX_VOLTAGE:
-            voltage = self.DAC_MAX_VOLTAGE
+        if voltage > self.__DAC_MAX_VOLTAGE:
+            voltage = self.__DAC_MAX_VOLTAGE
 
-        dac_val = int(voltage/self.DAC_MAX_VOLTAGE * self.DAC_MAX_VAL)
+        dac_val = int(voltage/self.__DAC_MAX_VOLTAGE * self.__DAC_MAX_VAL)
 
-        line = self.send_cmd('dac ' + str(self.dacs[name]) + ' ' + str(dac_val))
+        line = self.__send_cmd('dac ' + str(self.__dacs[name]) + ' ' + str(dac_val))
 
         result = line.strip().split(' ')
 
