@@ -4,8 +4,9 @@ import serial
 import string
 import sys
 import re
+from silta import Silta
 
-class bridge:
+class bridge(Silta):
     ''' Silta STM32F407 Discovery Bridge '''
 
     __pinModes = {
