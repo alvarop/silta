@@ -70,6 +70,17 @@ class bridge(Silta):
             print('Warning: Could not read device serial number.')
             print('You might want to update firmware on your board')
 
+        # Get device serial number and save it
+        self.__send_cmd('version\n')
+        result = line.strip().split(' ')
+        
+        if result[0] == 'OK':
+            self.firmware_version = result[1]
+        else:
+            self.firmware_version = NULL
+            print('Warning: Could not read device firmware version.')
+            print('You might want to update firmware on your board')
+
 
     def close(self):
         ''' Disconnect from USB-serial device. '''
