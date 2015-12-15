@@ -468,7 +468,6 @@ void consoleProcess() {
 
 				if(command->commandStr == NULL) {
 					printf("ERR Unknown command '%s'\n", argv[0]);
-					helpFn(1, NULL);
 				}
 			}
 		}
