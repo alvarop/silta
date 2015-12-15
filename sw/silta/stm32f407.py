@@ -29,6 +29,11 @@ class bridge(Silta):
         'PA5': 1
     }
 
+    __pwms = {
+        'PE5': 0,
+        'PE6': 1
+    }
+
     __ADC_MAX_VOLTAGE = 3.0
     __ADC_MAX_VAL = 4095
 
@@ -62,7 +67,7 @@ class bridge(Silta):
         # Get device serial number and save it
         line = self.__send_cmd('sn\n')
         result = line.strip().split(' ')
-        
+
         if result[0] == 'OK':
             self.serial_number = ''.join(result[1:])
         else:
@@ -73,7 +78,7 @@ class bridge(Silta):
         # Get device serial number and save it
         line = self.__send_cmd('version\n')
         result = line.strip().split(' ')
-        
+
         if result[0] == 'OK':
             self.firmware_version = result[1]
         else:
@@ -117,7 +122,7 @@ class bridge(Silta):
     # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):
         ''' I2C Transaction (write-then-read)
-            
+
             Arguments:
             addr - 8 bit I2C address
             rlen - Number of bytes to read
@@ -218,13 +223,13 @@ class bridge(Silta):
 
             Arguments:
             name - Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
-            mode - Pin mode 
+            mode - Pin mode
                 Available modes:
                 input - Digital Input
                 output - Push-pull output
                 output-od - Open drain output
                 analog - Analog input
-            pull - 
+            pull -
                 None (default) - No pull
                 up - Pull-up
                 down - Pull-down
@@ -368,7 +373,7 @@ class bridge(Silta):
             None - Failed setting DAC value
             True - Value set successfully
         '''
-        
+
         name = name.upper()
 
         if name not in self.__dacs:
@@ -380,6 +385,33 @@ class bridge(Silta):
         dac_val = int(voltage/self.__DAC_MAX_VOLTAGE * self.__DAC_MAX_VAL)
 
         line = self.__send_cmd('dac ' + str(self.__dacs[name]) + ' ' + str(dac_val))
+
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
+        else:
+            return None
+
+    # Set PWM output for pin
+    def pwm(self, name, period):
+        ''' Set PWM Output
+
+            Arguments:
+            name - PWM pin (Supported pins: PE5 and PE6)
+            period - Period in microseconds
+
+            Return Values:
+            None - Failed setting PWM value
+            True - Value set successfully
+        '''
+
+        name = name.upper()
+
+        if name not in self.__pwms:
+            raise ValueError('Not a PWM pin')
+
+        line = self.__send_cmd('pwm ' + str(self.__pwms[name]) + ' ' + str(period))
 
         result = line.strip().split(' ')
 
