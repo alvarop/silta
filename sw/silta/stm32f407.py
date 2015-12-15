@@ -60,7 +60,7 @@ class bridge(Silta):
             self.stream.flush()
 
         # Get device serial number and save it
-        self.__send_cmd('sn\n')
+        line = self.__send_cmd('sn\n')
         result = line.strip().split(' ')
         
         if result[0] == 'OK':
@@ -71,7 +71,7 @@ class bridge(Silta):
             print('You might want to update firmware on your board')
 
         # Get device serial number and save it
-        self.__send_cmd('version\n')
+        line = self.__send_cmd('version\n')
         result = line.strip().split(' ')
         
         if result[0] == 'OK':
