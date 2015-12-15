@@ -41,6 +41,8 @@ LINKER_SCRIPT = stm32_flash.ld
 
 CPU = -mcpu=cortex-m4 -mthumb
 
+VERSION = $(shell git describe --dirty | sed 's/releases\///')
+
 CFLAGS  = $(CPU) -c -std=gnu11 -g -O2 -Wall
 LDFLAGS  = $(CPU) -mlittle-endian -mthumb-interwork -nostartfiles -Wl,--gc-sections,-Map=$(OUTPATH)/$(PROJ_NAME).map,--cref --specs=nano.specs
 
@@ -57,6 +59,7 @@ DEVICE_DEF = STM32F40_41xxx
 endif
 
 CFLAGS += -D$(DEVICE_DEF)
+CFLAGS += -DSILTA_VERSION=\"$(VERSION)\"
 
 #vpath %.c src
 vpath %.a lib

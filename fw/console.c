@@ -38,6 +38,9 @@ static void spiSetCSCmd(uint8_t arcg, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
 static void snCmd(uint8_t argc, char *argv[]);
+static void versionCmd(uint8_t argc, char *argv[]);
+
+static const char versionStr[] = SILTA_VERSION;
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
@@ -51,6 +54,7 @@ static command_t commands[] = {
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
 	{"sn", snCmd, "sn"},
+	{"version", versionCmd, "version"},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
 	{NULL, NULL, NULL}
@@ -407,6 +411,10 @@ static void snCmd(uint8_t argc, char *argv[]) {
 		printf("%02X ", uid[byte]);
 	}
 	printf("\n");
+}
+
+static void versionCmd(uint8_t argc, char *argv[]) {
+	printf("OK %s\n", versionStr);
 }
 
 void consoleProcess() {
