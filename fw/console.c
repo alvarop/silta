@@ -12,6 +12,7 @@
 #include "gpio.h"
 #include "adc.h"
 #include "dac.h"
+#include "pwm.h"
 
 typedef struct {
 	char *commandStr;
@@ -37,6 +38,7 @@ static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void spiSetCSCmd(uint8_t arcg, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
+static void pwmCmd(uint8_t argc, char *argv[]);
 static void snCmd(uint8_t argc, char *argv[]);
 static void versionCmd(uint8_t argc, char *argv[]);
 
@@ -46,13 +48,14 @@ static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
 	{"adcnum", adcNumCmd, "adcnum <port[A-E]> <pin0-15>"},
 	{"adc", adcCmd, "adc <adc_num>"},
-	{"dac", dacCmd, "adc <dac_num> <val>"},
+	{"dac", dacCmd, "dac <dac_num> <val>"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
 	{"spics", spiSetCSCmd, "<port[A-E]> <pin0-15>"},
 	{"config", cfgCmd, "<key> [value]"},
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
+	{"pwm", pwmCmd, "<channel> <position(1000-2000)"},
 	{"sn", snCmd, "sn"},
 	{"version", versionCmd, "version"},
 	// Add new commands here!
@@ -402,6 +405,30 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 		printf("ERR Invalid args\n");
 	}
 }
+
+static void pwmCmd(uint8_t argc, char *argv[]) {
+	do {
+
+		if(argc < 3) {
+			printf("ERR Invalid args\n");
+			break;
+		}
+
+		uint8_t ch = strtoul(argv[1], NULL, 10);
+		uint16_t pos = strtoul(argv[2], NULL, 10);
+
+		if (ch > 1) {
+			printf("ERR Invalid dac\n");
+			break;
+		}
+
+		pwmSetCCR(ch, pos);
+
+		printf("OK\n");
+
+	} while(0);
+}
+
 
 static void snCmd(uint8_t argc, char *argv[]) {
 	printf("OK ");

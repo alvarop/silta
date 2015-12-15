@@ -15,6 +15,7 @@
 #include "gpio.h"
 #include "adc.h"
 #include "dac.h"
+#include "pwm.h"
 
 #define BLINK_DELAY_MS	(500)
 
@@ -36,6 +37,7 @@ int main(void) {
 	i2cSetup(100000);
 	spiInit(0);
 	spiConfig(0, 1000000, 1, 1);
+	pwmInit();
 
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);

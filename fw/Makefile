@@ -1,6 +1,6 @@
 # Sources
 
-SRCS = main.c stm32f4xx_it.c system_stm32f4xx.c startup_stm32f4xx.c fifo.c console.c i2c.c config.c gpio.c spi.c adc.c dac.c
+SRCS = main.c stm32f4xx_it.c system_stm32f4xx.c startup_stm32f4xx.c fifo.c console.c i2c.c config.c gpio.c spi.c adc.c dac.c pwm.c
 S_SRCS = 
 
 # USB
