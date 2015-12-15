@@ -58,6 +58,18 @@ class bridge:
         if self.stream:
             self.stream.flush()
 
+        # Get device serial number and save it
+        self.__send_cmd('sn\n')
+        result = line.strip().split(' ')
+        
+        if result[0] == 'OK':
+            self.serial_number = ''.join(result[1:])
+        else:
+            self.serial_number = NULL
+            print('Warning: Could not read device serial number.')
+            print('You might want to update firmware on your board')
+
+
     def close(self):
         ''' Disconnect from USB-serial device. '''
         self.stream.close()

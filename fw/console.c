@@ -21,6 +21,8 @@ typedef struct {
 
 fifo_t usbRxFifo;
 
+static uint8_t *uid = (uint8_t *)(0x1FFF7A10);
+
 static char cmdBuff[64];
 static uint8_t argc;
 static char* argv[8];
@@ -35,6 +37,7 @@ static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void spiSetCSCmd(uint8_t arcg, char *argv[]);
 static void gpioCmd(uint8_t argc, char *argv[]);
 static void gpioCfgCmd(uint8_t argc, char *argv[]);
+static void snCmd(uint8_t argc, char *argv[]);
 
 static command_t commands[] = {
 	{"i2c", i2cCmd, "i2c <addr> <rdlen> [wrbytes (04 D1 ..)]"},
@@ -47,6 +50,7 @@ static command_t commands[] = {
 	{"config", cfgCmd, "<key> [value]"},
 	{"gpio", gpioCmd, "<port[A-E]> <pin0-15> [value]"},
 	{"gpiocfg", gpioCfgCmd, "<port[A-E]> <pin0-15> <in|outpp|outod> [pullup|pulldown|nopull]"},
+	{"sn", snCmd, "sn"},
 	// Add new commands here!
 	{"help", helpFn, "Print this!"},
 	{NULL, NULL, NULL}
@@ -395,6 +399,16 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 	}
 }
 
+static void snCmd(uint8_t argc, char *argv[]) {
+	printf("OK ");
+	
+	// Print 96-bit serial number
+	for(uint8_t byte = 0; byte < 12; byte++) {
+		printf("%02X ", uid[byte]);
+	}
+	printf("\n");
+}
+
 void consoleProcess() {
 	uint32_t inBytes = fifoSize(&usbRxFifo);
 	if(inBytes > 0) {
@@ -445,7 +459,7 @@ void consoleProcess() {
 				}
 
 				if(command->commandStr == NULL) {
-					printf("Unknown command '%s'\n", argv[0]);
+					printf("ERR Unknown command '%s'\n", argv[0]);
 					helpFn(1, NULL);
 				}
 			}
