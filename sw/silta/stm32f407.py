@@ -394,12 +394,12 @@ class bridge(Silta):
             return None
 
     # Set PWM output for pin
-    def pwm(self, name, period):
+    def pwm(self, name, duty_cycle):
         ''' Set PWM Output
 
             Arguments:
-            name - PWM pin (Supported pins: PE5 and PE6)
-            period - Period in microseconds
+            name - PWM pin
+            duty_cycle - Value from 0-1
 
             Return Values:
             None - Failed setting PWM value
@@ -411,7 +411,13 @@ class bridge(Silta):
         if name not in self.__pwms:
             raise ValueError('Not a PWM pin')
 
-        line = self.__send_cmd('pwm ' + str(self.__pwms[name]) + ' ' + str(period))
+        if duty_cycle < 0 or duty_cycle > 1:
+            raise ValueError('Duty cycle must be between 0 and 1')
+
+        period = 10000
+        val = int(period * duty_cycle)
+
+        line = self.__send_cmd('pwm ' + str(self.__pwms[name]) + ' ' + str(val))
 
         result = line.strip().split(' ')
 

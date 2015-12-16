@@ -117,5 +117,19 @@ class Silta:
             None - Failed setting DAC value
             True - Value set successfully
         '''
+
+        return None
+
+    def pwm(self, name, duty_cycle):
+        ''' Set PWM Output
+
+            Arguments:
+            name - PWM pin
+            duty_cycle - Value from 0-1
+
+            Return Values:
+            None - Failed setting PWM value
+            True - Value set successfully
+        '''
         
         return None
