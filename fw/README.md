@@ -1,5 +1,8 @@
 #Silta - Python to STM32F4 Bridge Project
 
+## Firmware Download
+If you don't want to build the firmware and prefer downloading it, check out the github releases page: https://github.com/alvarop/silta/releases
+
 ## Firmware Build instructions
 
 Make sure you have the arm-none-eabi(gcc, etc...) tools installed: https://launchpad.net/gcc-arm-embedded
