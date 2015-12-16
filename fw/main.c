@@ -17,7 +17,8 @@
 #include "dac.h"
 #include "pwm.h"
 
-#define BLINK_DELAY_MS	(500)
+#define LED_ON_MS	(10)
+#define LED_OFF_MS	(990)
 
 volatile uint32_t tickMs = 0;
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
@@ -42,17 +43,19 @@ int main(void) {
 	// Disable line buffering on stdout
 	setbuf(stdout, NULL);
 
-	nextBlink = tickMs + BLINK_DELAY_MS;
+	nextBlink = tickMs + LED_OFF_MS;
 	for(;;) {
 
 		consoleProcess();
 
 		if(tickMs > nextBlink) {
-			nextBlink = tickMs + BLINK_DELAY_MS;
+			
 			if(blinkState) {
 				GPIO_SetBits(GPIOD, GPIO_Pin_15);
+				nextBlink = tickMs + LED_ON_MS;
 			} else {
 				GPIO_ResetBits(GPIOD, GPIO_Pin_15);
+				nextBlink = tickMs + LED_OFF_MS;
 			}
 			blinkState ^= 1;
 		}
