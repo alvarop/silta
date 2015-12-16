@@ -57,7 +57,7 @@ NOTE: PWM is currently locked at 10ms period, mainly for use with servos.
 
 #### GPIO
 Most other pins in ports A-E should work as GPIOs
-Notable ones:
+Notable/useful ones:
 * PD12 - Green LED
 * PD13 - Orange LED
 * PD14 - Red LED

@@ -1,4 +1,49 @@
-''' Silta STM32F407 Discovery Bridge '''
+''' Silta STM32F407 Discovery Bridge 
+
+--- Supported Pins
+I2C:
+* PB6 - I2C1 SCL
+* PB9 - I2C1 SDA
+
+SPI:
+* PA5 - SPI1 SCK
+* PA6 - SPI1 MISO
+* PA7 - SPI1 MOSI
+
+ADC:
+* PA0 - ADC1_0
+* PA1 - ADC1_1
+* PA2 - ADC1_2
+* PA3 - ADC1_3
+* PA4 - ADC1_4 (Will disable DAC)
+* PA5 - ADC1_5 (Will disable DAC)
+* PA6 - ADC1_6
+* PA7 - ADC1_7
+* PB0 - ADC1_8
+* PB1 - ADC1_9
+* PC0 - ADC1_10
+* PC1 - ADC1_11
+* PC2 - ADC1_12
+* PC3 - ADC1_13
+* PC4 - ADC1_14
+* PC5 - ADC1_15
+
+DAC:
+* PA4 - DAC1
+* PA5 - DAC2
+
+PWM:
+NOTE: PWM is currently locked at 10ms period, mainly for use with servos.
+* PE5
+* PE6
+
+GPIO:
+Most other pins in ports A-E should work as GPIOs
+Notable/useful ones:
+* PD12 - Green LED
+* PD13 - Orange LED
+* PD14 - Red LED
+'''
 
 import serial
 import string
@@ -366,7 +411,7 @@ class bridge(Silta):
         ''' Set DAC Output
 
             Arguments:
-            name - DAC pin (Supported pins: PA4 and PA5)
+            name - DAC pin
             voltage - Voltage setting for pin
 
             Return Values:
