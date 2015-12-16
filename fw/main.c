@@ -50,9 +50,9 @@ int main(void) {
 		if(tickMs > nextBlink) {
 			nextBlink = tickMs + BLINK_DELAY_MS;
 			if(blinkState) {
-				GPIO_SetBits(GPIOD, GPIO_Pin_12);
+				GPIO_SetBits(GPIOD, GPIO_Pin_15);
 			} else {
-				GPIO_ResetBits(GPIOD, GPIO_Pin_12);
+				GPIO_ResetBits(GPIOD, GPIO_Pin_15);
 			}
 			blinkState ^= 1;
 		}
@@ -76,7 +76,7 @@ void init() {
 	// GPIOD Periph clock enable
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
-	GPIO_Init(GPIOD, &(GPIO_InitTypeDef){GPIO_Pin_12, GPIO_Mode_OUT, GPIO_Speed_2MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL});
+	GPIO_Init(GPIOD, &(GPIO_InitTypeDef){GPIO_Pin_15, GPIO_Mode_OUT, GPIO_Speed_2MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL});
 
 	USBD_Init(&USB_OTG_dev,
 				USB_OTG_FS_CORE_ID,
