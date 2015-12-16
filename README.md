@@ -8,7 +8,7 @@ Future support (hopefully): UART, I2C2-3, SPI2+
 
 For examples, see: https://github.com/alvarop/silta/tree/master/sw/examples
 
-For firmware build instructions, see: https://github.com/alvarop/silta/tree/master/fw
+For firmware build/update instructions, see: https://github.com/alvarop/silta/tree/master/fw
 
 For python module build instructions, see: https://github.com/alvarop/silta/tree/master/sw
 
