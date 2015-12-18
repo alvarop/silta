@@ -478,7 +478,7 @@ void consoleProcess() {
 			argv[argc] = strtok(cmdBuff, " ");
 
 			// Get arguments (if any)
-			while ((argv[argc] != NULL) && (argc < sizeof(argv)/sizeof(char *))){
+			while ((argc < sizeof(argv)/sizeof(char *)) && (argv[argc] != NULL)){
 				argc++;
 				argv[argc] = strtok(NULL, " ");
 			}
