@@ -102,7 +102,7 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		uint8_t addr = strtoul(argv[I2C_ADDR_OFFSET], NULL, 16);
 		uint8_t rLen = strtoul(argv[I2C_RLEN_OFFSET], NULL, 10);
 		uint8_t wLen = argc - I2C_WBUFF_OFFSET;
-		
+
 		if(wLen > sizeof(wBuff)) {
 			printf("ERR: I2C Not enough space in wBuff\n");
 			break;
@@ -298,9 +298,9 @@ static void spiSetCSCmd(uint8_t arcg, char *argv[]) {
 	} while(0);
 }
 
-// 
+//
 // Set/get GPIO pins
-// 
+//
 static void gpioCmd(uint8_t argc, char *argv[]) {
 	if(argc > 2) {
 		do {
@@ -322,7 +322,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 
 			if(argc == 3) {
 				int32_t value = gpioGet(GPIOx, pin);
-				
+
 				if (value < 0) {
 					printf("ERR\n");
 				} else {
@@ -330,7 +330,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 				}
 			} else {
 				int32_t rval = gpioSet(GPIOx, pin, (argv[3][0] != '0'));
-				
+
 				if (rval < 0) {
 					printf("ERR\n");
 				} else {
@@ -344,7 +344,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 }
 
 //
-// Configure GPIO pins as input/output(open drain or push-pull) 
+// Configure GPIO pins as input/output(open drain or push-pull)
 // and set pull-up/down resistors
 //
 static void gpioCfgCmd(uint8_t argc, char *argv[]) {
@@ -376,7 +376,7 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 			if (strcmp("outpp", argv[3]) == 0) {
 				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
 				gpioSettings.GPIO_OType = GPIO_OType_PP;
-			} else if (strcmp("outpp", argv[3]) == 0) {
+			} else if (strcmp("outod", argv[3]) == 0) {
 				gpioSettings.GPIO_Mode = GPIO_Mode_OUT;
 				gpioSettings.GPIO_OType = GPIO_OType_OD;
 			} else if (strcmp("analog", argv[3]) == 0) {
@@ -396,7 +396,7 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 					gpioSettings.GPIO_PuPd = GPIO_PuPd_DOWN;
 				}
 			}
-			
+
 			GPIO_Init(GPIOx, &gpioSettings);
 
 			printf("OK\n");
@@ -432,7 +432,7 @@ static void pwmCmd(uint8_t argc, char *argv[]) {
 
 static void snCmd(uint8_t argc, char *argv[]) {
 	printf("OK ");
-	
+
 	// Print 96-bit serial number
 	for(uint8_t byte = 0; byte < 12; byte++) {
 		printf("%02X ", uid[byte]);
