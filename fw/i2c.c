@@ -66,7 +66,7 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 		while((I2Cx->SR2 & I2C_SR2_BUSY) && (tickMs < timeout)) {
 		}
 
-		if (tickMs > timeout) {
+		if (tickMs >= timeout) {
 			rval = I2C_TIMEOUT;
 			break;
 		}
@@ -82,8 +82,8 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 
 			}
 
-			if (tickMs > timeout) {
-				rval = I2C_TIMEOUT;
+			if (tickMs >= timeout) {
+				rval = I2C_ERR;
 				break;
 			}
 
@@ -93,7 +93,12 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			// Wait for address to be sent
 			do {
 				reg = I2Cx->SR1;
-			} while(!(reg & I2C_SR1_ADDR) && !i2cErr);
+			} while(!(reg & I2C_SR1_ADDR) && !i2cErr && (tickMs < timeout));
+
+			if (tickMs >= timeout) {
+				rval = I2C_ERR;
+				break;
+			}
 
 			if((reg & I2C_SR1_AF) || (i2cErr & I2C_SR1_AF)) {
 				I2Cx->SR1 &= ~I2C_SR1_AF; // Clear ack failure bit
@@ -109,7 +114,12 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 				// Wait for address to be sent
 				do {
 					reg = I2Cx->SR1;
-				} while(!(reg & (I2C_SR1_BTF | I2C_SR1_AF)) && !i2cErr);
+				} while(!(reg & (I2C_SR1_BTF | I2C_SR1_AF)) && !i2cErr && (tickMs < timeout));
+
+				if (tickMs >= timeout) {
+					rval = I2C_ERR;
+					break;
+				}
 
 				if(reg & I2C_SR1_AF || (i2cErr & I2C_SR1_AF)) {
 					I2Cx->SR1 &= ~I2C_SR1_AF; // Clear ack failure bit
@@ -132,8 +142,8 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			while(!(I2Cx->SR1 & I2C_SR1_SB) && (tickMs < timeout)) {
 			}
 
-			if (tickMs > timeout) {
-				rval = I2C_TIMEOUT;
+			if (tickMs >= timeout) {
+				rval = I2C_ERR;
 				break;
 			}
 
@@ -143,7 +153,12 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			// Wait for address to be sent
 			do {
 				reg = I2Cx->SR1;
-			} while(!(reg & I2C_SR1_ADDR) && !i2cErr);
+			} while(!(reg & I2C_SR1_ADDR) && !i2cErr && (tickMs < timeout));
+
+			if (tickMs >= timeout) {
+				rval = I2C_ERR;
+				break;
+			}
 
 			if((reg & I2C_SR1_AF) || (i2cErr & I2C_SR1_AF)) {
 				I2Cx->SR1 &= ~I2C_SR1_AF; // Clear ack failure bit
@@ -164,7 +179,12 @@ int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint
 			while(rLen--) {
 				do {
 					reg = I2Cx->SR1;
-				} while(!(reg & (I2C_SR1_RXNE)) && !i2cErr);
+				} while(!(reg & (I2C_SR1_RXNE)) && !i2cErr && (tickMs < timeout));
+
+				if (tickMs >= timeout) {
+					rval = I2C_ERR;
+					break;
+				}
 
 				if(reg & I2C_SR1_AF || (i2cErr & I2C_SR1_AF)) {
 					I2Cx->SR1 &= ~I2C_SR1_AF; // Clear ack failure bit
