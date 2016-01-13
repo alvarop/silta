@@ -1,0 +1,13 @@
+#
+# Silta (STM32F4 usb cdc)
+#
+# Makes symlinks to silta devices with the format /dev/silta%n
+#
+# Put this file in /etc/udev/rules.d/
+#
+# For more info as to how/why this works, check out the following:
+# http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/
+# http://manpages.ubuntu.com/manpages/hardy/man7/udev.7.html
+#
+
+SUBSYSTEMS=="usb", KERNEL=="ttyACM*", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", ATTRS{product}=="Silta", MODE:="0666", SYMLINK+="silta%n"
