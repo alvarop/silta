@@ -23,6 +23,8 @@
 volatile uint32_t tickMs = 0;
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 
+extern char usbSerialNo[];
+
 // Private function prototypes
 void Delay(volatile uint32_t nCount);
 void init();
@@ -49,7 +51,7 @@ int main(void) {
 		consoleProcess();
 
 		if(tickMs > nextBlink) {
-			
+
 			if(blinkState) {
 				GPIO_SetBits(GPIOD, GPIO_Pin_15);
 				nextBlink = tickMs + LED_ON_MS;
@@ -61,10 +63,22 @@ int main(void) {
 		}
 
 		__WFI();
-		
+
 	}
 
 	return 0;
+}
+
+// Copy the board serial number to the usb descriptor, so it shows up
+// on lsusb, etc.
+static uint8_t *uid = (uint8_t *)(0x1FFF7A10);
+static void setUSBSerial() {
+	char *serialNo = usbSerialNo;
+
+	// Print 96-bit serial number
+	for(uint8_t byte = 0; byte < 12; byte++) {
+		snprintf(&serialNo[byte * 2], 3, "%02X", uid[byte]);
+	}
 }
 
 void init() {
@@ -80,6 +94,8 @@ void init() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
 	GPIO_Init(GPIOD, &(GPIO_InitTypeDef){GPIO_Pin_15, GPIO_Mode_OUT, GPIO_Speed_2MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL});
+
+	setUSBSerial();
 
 	USBD_Init(&USB_OTG_dev,
 				USB_OTG_FS_CORE_ID,
