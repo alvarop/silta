@@ -26,7 +26,7 @@ static uint8_t *uid = (uint8_t *)(0x1FFF7A10);
 
 static char cmdBuff[64];
 static uint8_t argc;
-static char* argv[8];
+static char* argv[255];
 
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
