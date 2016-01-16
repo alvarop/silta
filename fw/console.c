@@ -33,6 +33,7 @@ static void i2cCmd(uint8_t argc, char *argv[]);
 static void adcCmd(uint8_t argc, char *argv[]);
 static void adcNumCmd(uint8_t argc, char *argv[]);
 static void dacCmd(uint8_t argc, char *argv[]);
+static void dacEnableCmd(uint8_t argc, char *argv[]);
 static void spiCmd(uint8_t argc, char *argv[]);
 static void spiCfgCmd(uint8_t argc, char *argv[]);
 static void spiSetCSCmd(uint8_t arcg, char *argv[]);
@@ -49,6 +50,7 @@ static command_t commands[] = {
 	{"adcnum", adcNumCmd, "adcnum <port[A-E]> <pin0-15>"},
 	{"adc", adcCmd, "adc <adc_num>"},
 	{"dac", dacCmd, "dac <dac_num> <val>"},
+	{"dacenable", dacEnableCmd, "dacenable"},
 	{"spi", spiCmd, "spi <rwbytes (04 D1 ..)>"},
 	{"spicfg", spiCfgCmd, "spicfg <speed> <cpol> <cpha>"},
 	{"spics", spiSetCSCmd, "<port[A-E]> <pin0-15>"},
@@ -193,6 +195,11 @@ static void adcCmd(uint8_t arcg, char *argv[]) {
 		}
 
 	} while(0);
+}
+
+static void dacEnableCmd(uint8_t argc, char *argv[]) {
+	dacInit();
+	printf("OK\n");
 }
 
 static void dacCmd(uint8_t arcg, char *argv[]) {

@@ -19,6 +19,9 @@ stream_file = sys.argv[1]
 
 bridge = stm32f407.bridge(stream_file)
 
+# Enable DACs
+bridge.dac_enable()
+
 # Configure pin as DAC (TODO, currently always a DAC)
 # bridge.gpiocfg(DAC_PIN, 'analog')
 

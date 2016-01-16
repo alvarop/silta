@@ -160,7 +160,6 @@ class bridge(Silta):
 
         if result[0] == 'OK':
             return True
-
         else:
             return False
 
@@ -403,6 +402,22 @@ class bridge(Silta):
 
         if result[0] == 'OK':
             return int(result[1]) * self.__ADC_MAX_VOLTAGE/self.__ADC_MAX_VAL
+        else:
+            return None
+
+    def dac_enable(self):
+        ''' Enable DACs
+            Return Values:
+                None - Failed setting DAC value
+                True - Value set successfully
+        '''
+
+        line = self.__send_cmd('dacenable')
+
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
         else:
             return None
 

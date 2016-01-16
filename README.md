@@ -34,7 +34,7 @@ You should be able to use pip to get the silta python module using:
 * PA2 - ADC1_2
 * PA3 - ADC1_3
 * PA4 - ADC1_4 (Will disable DAC)
-* PA5 - ADC1_5 (Will disable DAC)
+* PA5 - ADC1_5 (Will disable DAC and/or SPI1 SCK)
 * PA6 - ADC1_6
 * PA7 - ADC1_7
 * PB0 - ADC1_8
@@ -47,6 +47,7 @@ You should be able to use pip to get the silta python module using:
 * PC5 - ADC1_15
 
 #### DAC
+Must be enabled separately, since it disables SPI1 SCK
 * PA4 - DAC1
 * PA5 - DAC2
 
