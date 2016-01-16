@@ -261,6 +261,32 @@ class bridge(Silta):
 
         return rbytes
 
+    def spicfg(self, speed, cpol, cpha):
+        ''' SPI Configuration
+
+            Arguments:
+            speed - SPI Speed in Hz
+                Supported speeds: 42000000, 21000000, 10500000, 5250000, 
+                                    2625000, 1312500, 656250, 328125
+            cpol - Clock polarity
+            cpha - Clock phase
+
+            Return Values:
+            True for success
+            or
+            False for failure
+        '''
+
+        cmd = 'spicfg ' + str(speed) + ' ' + str(int(cpol) & 1) + ' ' + str(int(cpha) & 1)
+        line = self.__send_cmd(cmd)
+        
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
+        else:
+            return False
+
     # Configure GPIO as input/output/etc
     def gpiocfg(self, name, mode='input', pull=None):
         ''' GPIO Configuration

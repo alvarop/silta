@@ -21,6 +21,9 @@ bridge = stm32f407.bridge(stream_file)
 # Set the CS line as an output
 bridge.gpiocfg(CS_PIN, 'output')
 
+# Configure ~1.05MHz clock with CPOL=0,CPHA=0
+bridge.spi_cfg(10500000, 0, 0)
+
 # CS is active low in this case
 bridge.gpio(CS_PIN, 1)
 
