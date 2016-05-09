@@ -116,7 +116,7 @@ class bridge(Silta):
         if result[0] == 'OK':
             self.serial_number = ''.join(result[1:])
         else:
-            self.serial_number = NULL
+            self.serial_number = None
             print('Warning: Could not read device serial number.')
             print('You might want to update firmware on your board')
 
@@ -127,7 +127,7 @@ class bridge(Silta):
         if result[0] == 'OK':
             self.firmware_version = result[1]
         else:
-            self.firmware_version = NULL
+            self.firmware_version = None
             print('Warning: Could not read device firmware version.')
             print('You might want to update firmware on your board')
 
