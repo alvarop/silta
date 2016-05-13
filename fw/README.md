@@ -10,7 +10,7 @@ Make sure you have the arm-none-eabi(gcc, etc...) tools installed: https://launc
 Running make on the top directory should build both the driver library, support files, and main.c
 Output files are in the build/ directory
 
-## Programming instructions 
+## Programming instructions
 
 ### Using dfu-util
 
@@ -21,10 +21,17 @@ Output files are in the build/ directory
 5. Run `dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s 0x8000000 -D fw/build/silta.bin`
 6. Disconnect BOOT0 and VDD and reset the board again
 
+### NOTE for STM32F407G-Discovery Rev D
+For some reason, the st-link firmware changed for revision D of the discovery board. It will hold the STM32F407 in reset until the ST-Link microcontroller connects to a computer via USB. This prevents using the PA9->5V connection to power the board from the micro-usb connector.
+
+A simple solution is to solder short SB10 on the back of the board. This will hold the ST-Link microcontroller in reset and release the STM32F407. This will disable ST-Link, so only do this if you plan to use the dfu-util firmware update method.
+
+![Rework instructions for SB10](img/sb10.jpg)
+
 ### Using openOCD and gdb
 
 1. Connect to the stm32f4-discovery board using the mini USB cable AND micro USB cable
-2. Connect using openOCD and the included configuration file. 
+2. Connect using openOCD and the included configuration file.
 	`$ openocd -f stm32f4xx-openOCD.cfg`
 3. On a separate terminal window, run arm-none-eabi-gdb
 	`$ arm-none-eabi-gdb`
