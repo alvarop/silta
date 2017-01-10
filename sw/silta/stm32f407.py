@@ -51,6 +51,8 @@ import sys
 import re
 from silta import Silta
 
+BUFFER_SIZE = 62  # Not including the newline.
+
 class bridge(Silta):
     ''' Silta STM32F407 Discovery Bridge '''
 
@@ -138,6 +140,7 @@ class bridge(Silta):
 
     # Send terminal command and wait for response
     def __send_cmd(self, cmd):
+        assert len(cmd) < BUFFER_SIZE, 'Command is too long!'
         self.stream.write(cmd + '\n')
         if self.DEBUG is True:
             print 'CMD : ' + cmd
@@ -242,22 +245,26 @@ class bridge(Silta):
         # Make sure the CS pin is selected
         self.__set_spi_cs(cspin)
 
-        cmd = 'spi'
+        cmd_prefix = 'spi '
 
-        for byte in wbytes:
-            cmd += format(byte, ' 02X')
+        MAX_CHARS = BUFFER_SIZE / 3 - len(cmd_prefix)
+        for index in range(0, len(wbytes), MAX_CHARS):
+            wbytes_chunk = wbytes[index:index + MAX_CHARS]
+            wbytes_chunk_ascii = ['{:0X}'.format(byte) for byte in
+                                  wbytes_chunk]
+            cmd = cmd_prefix + ' '.join(wbytes_chunk_ascii)
 
-        line = self.__send_cmd(cmd)
+            line = self.__send_cmd(cmd)
 
+            result = line.strip().split(' ')
+            if result[0] == 'OK':
+                for byte in result[1:]:
+                    rbytes.append(int(byte, 16))
 
-        result = line.strip().split(' ')
-
-        if result[0] == 'OK':
-            for byte in result[1:]:
-                rbytes.append(int(byte, 16))
-
-        else:
-            rbytes = int(result[1])
+            elif result[0] == 'ERR':
+                raise RuntimeException('Error: %s', ' '.join(result[1:]))
+            else:
+                rbytes = int(result[1])
 
         return rbytes
 
