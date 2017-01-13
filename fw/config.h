@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void cfgCmd(uint8_t argc, char *argv[]);
+void cfgCmd(uint32_t argc, char *argv[]);
 
 #endif
 

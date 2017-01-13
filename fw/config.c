@@ -23,7 +23,7 @@ static int32_t i2cSpeedSet(char *speedStr) {
 	} else {
 		i2cSetup(speed);
 	}
-	
+
 	return rval;
 }
 
@@ -71,7 +71,7 @@ static void cfgSet(configKey_t *key, char *val) {
 	}
 }
 
-void cfgCmd(uint8_t argc, char *argv[]) {
+void cfgCmd(uint32_t argc, char *argv[]) {
 	if(argc > 0) {
 		configKey_t *key = keys;
 		while(key->name != NULL) {

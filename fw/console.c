@@ -16,7 +16,7 @@
 
 typedef struct {
 	char *commandStr;
-	void (*fn)(uint8_t argc, char *argv[]);
+	void (*fn)(uint32_t argc, char *argv[]);
 	char *helpStr;
 } command_t;
 
@@ -25,23 +25,26 @@ fifo_t usbRxFifo;
 static uint8_t *uid = (uint8_t *)(0x1FFF7A10);
 
 static char cmdBuff[CMD_BUFF_SIZE];
-static uint8_t argc;
+static uint32_t argc;
 static char* argv[ARGV_MAX];
 
-static void helpFn(uint8_t argc, char *argv[]);
-static void i2cCmd(uint8_t argc, char *argv[]);
-static void adcCmd(uint8_t argc, char *argv[]);
-static void adcNumCmd(uint8_t argc, char *argv[]);
-static void dacCmd(uint8_t argc, char *argv[]);
-static void dacEnableCmd(uint8_t argc, char *argv[]);
-static void spiCmd(uint8_t argc, char *argv[]);
-static void spiCfgCmd(uint8_t argc, char *argv[]);
-static void spiSetCSCmd(uint8_t arcg, char *argv[]);
-static void gpioCmd(uint8_t argc, char *argv[]);
-static void gpioCfgCmd(uint8_t argc, char *argv[]);
-static void pwmCmd(uint8_t argc, char *argv[]);
-static void snCmd(uint8_t argc, char *argv[]);
-static void versionCmd(uint8_t argc, char *argv[]);
+static uint8_t rxBuff[TX_RX_BUFF_SIZE];
+static uint8_t txBuff[TX_RX_BUFF_SIZE];
+
+static void helpFn(uint32_t argc, char *argv[]);
+static void i2cCmd(uint32_t argc, char *argv[]);
+static void adcCmd(uint32_t argc, char *argv[]);
+static void adcNumCmd(uint32_t argc, char *argv[]);
+static void dacCmd(uint32_t argc, char *argv[]);
+static void dacEnableCmd(uint32_t argc, char *argv[]);
+static void spiCmd(uint32_t argc, char *argv[]);
+static void spiCfgCmd(uint32_t argc, char *argv[]);
+static void spiSetCSCmd(uint32_t argc, char *argv[]);
+static void gpioCmd(uint32_t argc, char *argv[]);
+static void gpioCfgCmd(uint32_t argc, char *argv[]);
+static void pwmCmd(uint32_t argc, char *argv[]);
+static void snCmd(uint32_t argc, char *argv[]);
+static void versionCmd(uint32_t argc, char *argv[]);
 
 static const char versionStr[] = SILTA_VERSION;
 
@@ -68,7 +71,7 @@ static command_t commands[] = {
 //
 // Print the help menu
 //
-static void helpFn(uint8_t argc, char *argv[]) {
+static void helpFn(uint32_t argc, char *argv[]) {
 	command_t *command = commands;
 
 	if(argc < 2) {
@@ -90,9 +93,7 @@ static void helpFn(uint8_t argc, char *argv[]) {
 #define I2C_ADDR_OFFSET		(1)
 #define I2C_RLEN_OFFSET		(2)
 #define I2C_WBUFF_OFFSET	(3)
-static void i2cCmd(uint8_t argc, char *argv[]) {
-	uint8_t wBuff[128];
-	uint8_t rBuff[128];
+static void i2cCmd(uint32_t argc, char *argv[]) {
 	int32_t rval;
 
 	do {
@@ -105,30 +106,30 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 		uint8_t rLen = strtoul(argv[I2C_RLEN_OFFSET], NULL, 10);
 		uint8_t wLen = argc - I2C_WBUFF_OFFSET;
 
-		if(wLen > sizeof(wBuff)) {
-			printf("ERR: I2C Not enough space in wBuff\n");
+		if(wLen > sizeof(txBuff)) {
+			printf("ERR: I2C Not enough space in txBuff\n");
 			break;
 		}
 
-		if(rLen > sizeof(rBuff)) {
-			printf("ERR: I2C Not enough space in rBuff\n");
+		if(rLen > sizeof(rxBuff)) {
+			printf("ERR: I2C Not enough space in rxBuff\n");
 			break;
 		}
 
 		if(wLen > 0) {
 			for(uint32_t byte = 0; byte < wLen; byte++) {
-				wBuff[byte] = strtoul(argv[I2C_WBUFF_OFFSET + byte], NULL, 16);
+				txBuff[byte] = strtoul(argv[I2C_WBUFF_OFFSET + byte], NULL, 16);
 			}
 		}
 
-		rval = i2c(I2C1, addr, wLen, wBuff, rLen, rBuff);
+		rval = i2c(I2C1, addr, wLen, txBuff, rLen, rxBuff);
 
 		if(rval) {
 			printf("ERR %ld\n", rval);
 		} else {
 			printf("OK ");
 			for(uint32_t byte = 0; byte < rLen; byte++) {
-				printf("%02X ", rBuff[byte]);
+				printf("%02X ", rxBuff[byte]);
 			}
 			printf("\n");
 		}
@@ -136,7 +137,7 @@ static void i2cCmd(uint8_t argc, char *argv[]) {
 	} while (0);
 }
 
-static void adcNumCmd(uint8_t arcg, char *argv[]) {
+static void adcNumCmd(uint32_t argc, char *argv[]) {
 	do {
 		int32_t adcNum;
 		if(argc < 3) {
@@ -171,7 +172,7 @@ static void adcNumCmd(uint8_t arcg, char *argv[]) {
 	} while(0);
 }
 
-static void adcCmd(uint8_t arcg, char *argv[]) {
+static void adcCmd(uint32_t argc, char *argv[]) {
 	do {
 		int32_t adcVal;
 		if(argc < 2) {
@@ -197,12 +198,12 @@ static void adcCmd(uint8_t arcg, char *argv[]) {
 	} while(0);
 }
 
-static void dacEnableCmd(uint8_t argc, char *argv[]) {
+static void dacEnableCmd(uint32_t argc, char *argv[]) {
 	dacInit();
 	printf("OK\n");
 }
 
-static void dacCmd(uint8_t arcg, char *argv[]) {
+static void dacCmd(uint32_t argc, char *argv[]) {
 	do {
 
 		if(argc < 3) {
@@ -227,9 +228,7 @@ static void dacCmd(uint8_t arcg, char *argv[]) {
 
 #define SPI_WBUFF_OFFSET (1)
 
-static void spiCmd(uint8_t argc, char *argv[]) {
-	uint8_t wBuff[128];
-	uint8_t rBuff[128];
+static void spiCmd(uint32_t argc, char *argv[]) {
 	int32_t rval = 0;
 
 	do {
@@ -241,17 +240,17 @@ static void spiCmd(uint8_t argc, char *argv[]) {
 		}
 
 		for(uint32_t byte = 0; byte < rwLen; byte++) {
-			wBuff[byte] = strtoul(argv[SPI_WBUFF_OFFSET + byte], NULL, 16);
+			txBuff[byte] = strtoul(argv[SPI_WBUFF_OFFSET + byte], NULL, 16);
 		}
 
-		rval = spi(0, rwLen, wBuff, rBuff);
+		rval = spi(0, rwLen, txBuff, rxBuff);
 
 		if(rval) {
 			printf("ERR %ld\n", rval);
 		} else {
 			printf("OK ");
 			for(uint32_t byte = 0; byte < rwLen; byte++) {
-				printf("%02X ", rBuff[byte]);
+				printf("%02X ", rxBuff[byte]);
 			}
 			printf("\n");
 		}
@@ -259,7 +258,7 @@ static void spiCmd(uint8_t argc, char *argv[]) {
 	} while (0);
 }
 
-static void spiCfgCmd(uint8_t argc, char *argv[]) {
+static void spiCfgCmd(uint32_t argc, char *argv[]) {
 
 	if(argc < 3) {
 		printf("ERR: SPI Not enough arguments\n");
@@ -276,7 +275,7 @@ static void spiCfgCmd(uint8_t argc, char *argv[]) {
 
 }
 
-static void spiSetCSCmd(uint8_t arcg, char *argv[]) {
+static void spiSetCSCmd(uint32_t argc, char *argv[]) {
 	do {
 		if(argc < 3) {
 			printf("ERR Invalid args\n");
@@ -308,7 +307,7 @@ static void spiSetCSCmd(uint8_t arcg, char *argv[]) {
 //
 // Set/get GPIO pins
 //
-static void gpioCmd(uint8_t argc, char *argv[]) {
+static void gpioCmd(uint32_t argc, char *argv[]) {
 	if(argc > 2) {
 		do {
 			char port = toupper((uint32_t)argv[1][0]);
@@ -354,7 +353,7 @@ static void gpioCmd(uint8_t argc, char *argv[]) {
 // Configure GPIO pins as input/output(open drain or push-pull)
 // and set pull-up/down resistors
 //
-static void gpioCfgCmd(uint8_t argc, char *argv[]) {
+static void gpioCfgCmd(uint32_t argc, char *argv[]) {
 	if(argc > 2) {
 		do {
 			GPIO_InitTypeDef gpioSettings;
@@ -413,7 +412,7 @@ static void gpioCfgCmd(uint8_t argc, char *argv[]) {
 	}
 }
 
-static void pwmCmd(uint8_t argc, char *argv[]) {
+static void pwmCmd(uint32_t argc, char *argv[]) {
 	do {
 
 		if(argc < 3) {
@@ -437,7 +436,7 @@ static void pwmCmd(uint8_t argc, char *argv[]) {
 }
 
 
-static void snCmd(uint8_t argc, char *argv[]) {
+static void snCmd(uint32_t argc, char *argv[]) {
 	printf("OK ");
 
 	// Print 96-bit serial number
@@ -447,7 +446,7 @@ static void snCmd(uint8_t argc, char *argv[]) {
 	printf("\n");
 }
 
-static void versionCmd(uint8_t argc, char *argv[]) {
+static void versionCmd(uint32_t argc, char *argv[]) {
 	printf("OK %s\n", versionStr);
 }
 
