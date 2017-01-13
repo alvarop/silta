@@ -111,6 +111,9 @@ class bridge(Silta):
         if self.stream:
             self.stream.flush()
 
+        # Flush any remaining data in the silta's buffer
+        self.__send_cmd('\n')
+
         # Get device serial number and save it
         line = self.__send_cmd('sn\n')
         result = line.strip().split(' ')
