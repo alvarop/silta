@@ -87,6 +87,11 @@ class bridge(Silta):
 
     DEBUG = False
 
+    # Hardcoding until we can read values back from device
+    __CMD_MAX_STR_LEN = 4095
+    __SPI_MAX_BYTES = 1024
+    __I2C_MAX_BYTES = 1024
+
     def __init__(self, serial_device, baud_rate=None):
         ''' Initialize Silta STM32F407 Bridge
 
@@ -143,6 +148,10 @@ class bridge(Silta):
 
     # Send terminal command and wait for response
     def __send_cmd(self, cmd):
+
+        if (len(cmd) + 1) > self.__CMD_MAX_STR_LEN:
+            raise RuntimeException('Command string too long')
+
         self.stream.write(cmd + '\n')
         if self.DEBUG is True:
             print 'CMD : ' + cmd
@@ -182,6 +191,12 @@ class bridge(Silta):
             or
             List with read bytes (or empty list if write-only command)
         '''
+
+        if len(wbytes) > self.__I2C_MAX_BYTES:
+            raise ValueError('wbytes too long. Max:', self.__I2C_MAX_BYTES)
+
+        if rlen > self.__I2C_MAX_BYTES:
+            raise ValueError('rlen too long. Max:', self.__I2C_MAX_BYTES)
 
         rbytes = []
         cmd = 'i2c ' + format(addr, '02X') + ' ' + str(rlen)
@@ -242,6 +257,9 @@ class bridge(Silta):
             or
             List of read bytes
         '''
+        if len(wbytes) > self.__SPI_MAX_BYTES:
+            raise ValueError('wbytes too long. Max:', self.__SPI_MAX_BYTES)
+
         rbytes = []
 
         # Make sure the CS pin is selected
@@ -253,7 +271,6 @@ class bridge(Silta):
             cmd += format(byte, ' 02X')
 
         line = self.__send_cmd(cmd)
-
 
         result = line.strip().split(' ')
 
