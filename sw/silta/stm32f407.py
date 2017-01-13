@@ -1,4 +1,4 @@
-''' Silta STM32F407 Discovery Bridge 
+''' Silta STM32F407 Discovery Bridge
 
 --- Supported Pins
 I2C:
@@ -87,7 +87,7 @@ class bridge(Silta):
 
     DEBUG = False
 
-    def __init__(self, serial_device):
+    def __init__(self, serial_device, baud_rate=None):
         ''' Initialize Silta STM32F407 Bridge
 
             Arguments:
@@ -102,6 +102,8 @@ class bridge(Silta):
             self.stream = serial.Serial()
             self.stream.port = serial_device
             self.stream.timeout = 0.1
+            if baud_rate:
+                self.stream.baudrate = baud_rate
             self.stream.open()
         except OSError:
             raise IOError('could not open ' + serial_device)
@@ -266,7 +268,7 @@ class bridge(Silta):
 
             Arguments:
             speed - SPI Speed in Hz
-                Supported speeds: 42000000, 21000000, 10500000, 5250000, 
+                Supported speeds: 42000000, 21000000, 10500000, 5250000,
                                     2625000, 1312500, 656250, 328125
             cpol - Clock polarity
             cpha - Clock phase
@@ -279,7 +281,7 @@ class bridge(Silta):
 
         cmd = 'spicfg ' + str(speed) + ' ' + str(int(cpol) & 1) + ' ' + str(int(cpha) & 1)
         line = self.__send_cmd(cmd)
-        
+
         result = line.strip().split(' ')
 
         if result[0] == 'OK':

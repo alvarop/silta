@@ -10,7 +10,7 @@ class Silta:
 
     DEBUG = False
 
-    def __init__(self, serial_device):
+    def __init__(self, serial_device, baud_rate=None):
         ''' Initialize Silta Bridge
 
             Arguments:
@@ -23,13 +23,13 @@ class Silta:
     # Set I2C Speed
     def i2c_speed(self, speed):
         ''' Set I2C speed in Hz. '''
-        
+
         return False
 
     # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):
         ''' I2C Transaction (write-then-read)
-            
+
             Arguments:
             addr - 8 bit I2C address
             rlen - Number of bytes to read
@@ -65,13 +65,13 @@ class Silta:
 
             Arguments:
             name - Pin name with format P<port><pin>
-            mode - Pin mode 
+            mode - Pin mode
                 Available modes:
                 input - Digital Input
                 output - Push-pull output
                 output-od - Open drain output
                 analog - Analog input
-            pull - 
+            pull -
                 None (default) - No pull
                 up - Pull-up
                 down - Pull-down
@@ -131,5 +131,5 @@ class Silta:
             None - Failed setting PWM value
             True - Value set successfully
         '''
-        
+
         return None
