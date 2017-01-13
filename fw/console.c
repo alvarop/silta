@@ -24,9 +24,9 @@ fifo_t usbRxFifo;
 
 static uint8_t *uid = (uint8_t *)(0x1FFF7A10);
 
-static char cmdBuff[64];
+static char cmdBuff[CMD_BUFF_SIZE];
 static uint8_t argc;
-static char* argv[255];
+static char* argv[ARGV_MAX];
 
 static void helpFn(uint8_t argc, char *argv[]);
 static void i2cCmd(uint8_t argc, char *argv[]);
