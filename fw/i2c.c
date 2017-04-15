@@ -56,7 +56,7 @@ void i2cSetup(uint32_t speed) {
 
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff) {
 	int32_t rval = 0;
-	uint8_t reg;
+	uint32_t reg;
 	uint32_t timeout;
 
 	do {
