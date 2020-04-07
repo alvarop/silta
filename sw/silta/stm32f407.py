@@ -154,11 +154,11 @@ class bridge(Silta):
 
         self.stream.write(cmd + '\n')
         if self.DEBUG is True:
-            print 'CMD : ' + cmd
+            print('CMD : ' + cmd)
 
         line = self.stream.readline()
         if self.DEBUG is True:
-            print 'RESP: ' + line,
+            print('RESP: ' + line)
 
         return line
 
