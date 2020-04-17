@@ -45,11 +45,12 @@ Notable/useful ones:
 * PD14 - Red LED
 '''
 
-import serial
-import string
-import sys
 import re
+import string
+
+import serial
 from silta import Silta
+
 
 class bridge(Silta):
     ''' Silta STM32F407 Discovery Bridge '''
@@ -141,7 +142,6 @@ class bridge(Silta):
             print('Warning: Could not read device firmware version.')
             print('You might want to update firmware on your board')
 
-
     def close(self):
         ''' Disconnect from USB-serial device. '''
         self.stream.close()
@@ -150,9 +150,9 @@ class bridge(Silta):
     def __send_cmd(self, cmd):
 
         if (len(cmd) + 1) > self.__CMD_MAX_STR_LEN:
-            raise RuntimeException('Command string too long')
+            raise RuntimeError('Command string too long')
 
-        self.stream.write(cmd + '\n')
+        self.stream.write('{}\n'.format(cmd).encode())
         if self.DEBUG is True:
             print('CMD : ' + cmd)
 
@@ -160,12 +160,11 @@ class bridge(Silta):
         if self.DEBUG is True:
             print('RESP: ' + line)
 
-        return line
+        return line.decode()
 
     # Set I2C Speed
     def i2c_speed(self, speed):
         ''' Set I2C speed in Hz. '''
-        rbytes = []
         cmd = 'config i2cspeed ' + str(speed)
 
         line = self.__send_cmd(cmd)
