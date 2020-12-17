@@ -168,13 +168,27 @@ class bridge(Silta):
         cmd = 'config i2cspeed ' + str(speed)
 
         line = self.__send_cmd(cmd)
+	
+        result = line.strip().split(' ')
+	
+        if result[0] == 'OK':
+            return True
+        else:
+            return False
+
+    # Set I2C pins 
+    def i2c_pins(self, pins):
+        ''' Set I2C pins '''
+        cmd = 'config i2cpins ' + str(pins)
+ 
+        line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
             return True
         else:
-            return False
+            return False 
 
     # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):

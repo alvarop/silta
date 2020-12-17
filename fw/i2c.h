@@ -12,7 +12,9 @@ typedef enum {
 	I2C_ERR
 } i2cReturn_t;
 
-void i2cSetup(uint32_t speed);
+void i2cSetup();
+void i2cSetSpeed(uint32_t speed);
+void i2cSetPin(uint8_t pins);
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff);
 
 #endif

@@ -35,7 +35,8 @@ int main(void) {
 
 	gpioInit();
 	adcInit();
-	i2cSetup(100000);
+	i2cSetPin(0);
+	i2cSetSpeed(100000);
 	spiInit(0);
 	spiConfig(0, 1000000, 1, 1);
 	pwmInit();

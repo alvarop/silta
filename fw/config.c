@@ -17,13 +17,25 @@ static char getBuff[256];
 static int32_t i2cSpeedSet(char *speedStr) {
 	uint32_t speed = strtoul(speedStr, NULL, 10);
 	int32_t rval = 0;
-
 	if (speed > 400000) {
 		rval = -1;
 	} else {
-		i2cSetup(speed);
+		i2cSetSpeed(speed);
 	}
 
+	return rval;
+}
+
+//Set I2C Pins
+static int32_t i2cPinSet(char *pinsStr) {
+        uint32_t pins = strtoul(pinsStr, NULL, 10);
+	int32_t rval = 0;
+	if (pins > 1){
+		rval = -1;
+	} else {
+		i2cSetPin(pins);
+	}
+	
 	return rval;
 }
 
@@ -39,6 +51,7 @@ static int32_t testGet(char *buff, size_t buffSize) {
 
 static configKey_t keys[] = {
 	{"i2cspeed", NULL, i2cSpeedSet, "i2c speed in Hz (default=100000)"},
+	{"i2cpins", NULL, i2cPinSet, "i2c pin set"},
 	{"test", testGet, testSet, "test value"},
 	{NULL, NULL, NULL, NULL}
 };
