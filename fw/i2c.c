@@ -24,19 +24,6 @@ void I2C1_ER_IRQHandler(void) {
 }
 
 void i2cSetSpeed(uint32_t speed) {
-//	I2C_InitTypeDef i2cConfig;
-
-/*	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
-
-	GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_6, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-	GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_9, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-*/
 
 	// I2C init
 	I2C_StructInit(&i2cConfig);
@@ -65,43 +52,49 @@ void i2cSetup() {
 void i2cSetPin(uint8_t pins) {
 	uint8_t GPIO_PinSource_SCL;
 	uint8_t GPIO_PinSource_SDA;
-	uint8_t GPIO_Pin_SCL;
+	uint16_t GPIO_Pin_SCL;
 	uint16_t GPIO_Pin_SDA;
 
 	if (pins == 1){
-	        GPIO_PinSource_SCL = GPIO_PinSource7;
-        	GPIO_PinSource_SDA = GPIO_PinSource8;
+	        GPIO_PinSource_SCL = GPIO_PinSource8;
+        	GPIO_PinSource_SDA = GPIO_PinSource7;
         	GPIO_Pin_SCL = GPIO_Pin_7;
         	GPIO_Pin_SDA = GPIO_Pin_8;
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_6, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_9, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
+		i2cAFConfigSet(GPIO_Pin_6, GPIO_Pin_9, 0);
 	}
         else{
                 GPIO_PinSource_SCL = GPIO_PinSource6;
                 GPIO_PinSource_SDA = GPIO_PinSource9;
                 GPIO_Pin_SCL = GPIO_Pin_6;
                 GPIO_Pin_SDA = GPIO_Pin_9;
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_7, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_8, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-        }
+		i2cAFConfigSet(GPIO_Pin_8, GPIO_Pin_7, 0);
+     	 }
 
-//	RCC_AHB1PeriphResetCmd(RCC_AHB1Periph_GPIOB, DISABLE);
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
-	
-//	I2C_DeInit(I2C1);
-	
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
         GPIO_PinAFConfig(GPIOB, GPIO_PinSource_SCL, GPIO_AF_I2C1);
         GPIO_PinAFConfig(GPIOB, GPIO_PinSource_SDA, GPIO_AF_I2C1);
-
-        GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_SCL, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-        GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_Pin_SDA, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
 	
+	i2cAFConfigSet(GPIO_Pin_SCL, GPIO_Pin_SDA, 1);
+
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 	
 	i2cSetup();
 }
+
+void i2cAFConfigSet(uint16_t GPIO_SCL, uint16_t GPIO_SDA, uint8_t mode){
+	// To switch the I2C bus, the pins currently occupying the I2C Alternate Function 
+	// need to be reset (GPIO_Mode_IN) and the target pins need to be set to GPIO_Mode_AF 
+	
+	if (mode == 1){
+		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SCL, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
+        	GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SDA, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
+	} else {
+		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SCL, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
+        	GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SDA, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
+	}
+}
+	
 
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff) {
 	int32_t rval = 0;

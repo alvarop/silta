@@ -15,6 +15,7 @@ typedef enum {
 void i2cSetup();
 void i2cSetSpeed(uint32_t speed);
 void i2cSetPin(uint8_t pins);
+void i2cAFConfigSet(uint16_t GPIO_SCL, uint16_t GPIO_SDA, uint8_t mode);
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff);
 
 #endif
