@@ -28,14 +28,14 @@ static int32_t i2cSpeedSet(char *speedStr) {
 
 //Set I2C Pins
 static int32_t i2cPinSet(char *pinsStr) {
-        uint32_t pins = strtoul(pinsStr, NULL, 10);
+	uint32_t pins = strtoul(pinsStr, NULL, 10);
 	int32_t rval = 0;
 	if (pins > 1){
 		rval = -1;
 	} else {
 		i2cSetPin(pins);
 	}
-	
+
 	return rval;
 }
 
