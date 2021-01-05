@@ -35,7 +35,7 @@ int main(void) {
 
 	gpioInit();
 	adcInit();
-	i2cSetPin(0);
+	i2c1SelectPins(GPIO_Pin_6 | GPIO_Pin_9);
 	i2cSetSpeed(100000);
 	spiInit(0);
 	spiConfig(0, 1000000, 1, 1);

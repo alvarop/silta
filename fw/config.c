@@ -26,14 +26,16 @@ static int32_t i2cSpeedSet(char *speedStr) {
 	return rval;
 }
 
-//Set I2C Pins
+// Set I2C1 Pins in GPIOB
+// pinsStr is a string representation of GPIO_Pin_X pins whereby pin 0 is 1<<0,
+// pin 1 is 1<<1, etc.
 static int32_t i2cPinSet(char *pinsStr) {
 	uint32_t pins = strtoul(pinsStr, NULL, 10);
 	int32_t rval = 0;
 	if (pins > 1){
 		rval = -1;
 	} else {
-		i2cSetPin(pins);
+		i2c1SelectPins(pins);
 	}
 
 	return rval;

@@ -14,8 +14,10 @@ typedef enum {
 
 void i2cSetup();
 void i2cSetSpeed(uint32_t speed);
-void i2cSetPin(uint8_t pins);
-void i2cAFConfigSet(uint16_t GPIO_SCL, uint16_t GPIO_SDA, uint8_t mode);
+
+// pins is one a bitwise ORed selection of GPIO_Pin_X in GPIOB. All pins not in
+// i2c1SelectPins will be set as GPIO. Setting pins to 0 will disable I2C1.
+void i2c1SelectPins(uint32_t pins);
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff);
 
 #endif

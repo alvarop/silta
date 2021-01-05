@@ -4,12 +4,16 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4xx.h"
 #include "i2c.h"
+#include "gpio.h"
 
 #define I2C_TIMEOUT_MS (50)
 
 extern volatile uint32_t tickMs;
 static volatile uint32_t i2cErr = 0;
 I2C_InitTypeDef i2cConfig;
+static const uint32_t I2C1_PINS = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
+
+void i2cSelectPin(GPIO_TypeDef *GPIOx, uint32_t pin);
 
 void I2C1_EV_IRQHandler(void) {
 
@@ -49,51 +53,33 @@ void i2cSetup() {
 
 }
 
-void i2cSetPin(uint8_t pins) {
-	uint8_t GPIO_PinSource_SCL;
-	uint8_t GPIO_PinSource_SDA;
-	uint16_t GPIO_Pin_SCL;
-	uint16_t GPIO_Pin_SDA;
+void i2c1SelectPins(uint32_t pins) {
+	uint32_t pin;
+	for (pin = 1; pin <= GPIO_Pin_15; pin=pin<<1)
+	{
+		if (pin & I2C1_PINS) {
+			if (pin & pins) {
+				i2cSelectPin(GPIOB, pin);
+			}
+			else {
+				gpioSelectPin(GPIOB, pin);
+			}
 
-	if (pins == 1){
-		GPIO_PinSource_SCL = GPIO_PinSource8;
-		GPIO_PinSource_SDA = GPIO_PinSource7;
-		GPIO_Pin_SCL = GPIO_Pin_7;
-		GPIO_Pin_SDA = GPIO_Pin_8;
-		i2cAFConfigSet(GPIO_Pin_6, GPIO_Pin_9, 0);
+		}
 	}
-	else{
-		GPIO_PinSource_SCL = GPIO_PinSource6;
-		GPIO_PinSource_SDA = GPIO_PinSource9;
-		GPIO_Pin_SCL = GPIO_Pin_6;
-		GPIO_Pin_SDA = GPIO_Pin_9;
-		i2cAFConfigSet(GPIO_Pin_8, GPIO_Pin_7, 0);
-	}
-
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource_SCL, GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource_SDA, GPIO_AF_I2C1);
-
-	i2cAFConfigSet(GPIO_Pin_SCL, GPIO_Pin_SDA, 1);
-
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 
 	i2cSetup();
 }
 
-void i2cAFConfigSet(uint16_t GPIO_SCL, uint16_t GPIO_SDA, uint8_t mode){
-	// To switch the I2C bus, the pins currently occupying the I2C Alternate
-	// Function need to be reset (GPIO_Mode_IN) and the target pins need to be set
-	// to GPIO_Mode_AF
-
-	if (mode == 1){
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SCL, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SDA, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-	} else {
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SCL, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-		GPIO_Init(GPIOB, &(GPIO_InitTypeDef){GPIO_SDA, GPIO_Mode_IN, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL});
-	}
+void i2cSelectPin(GPIO_TypeDef *GPIOx, uint32_t pin){
+	GPIO_Init(
+			GPIOx,
+			&(GPIO_InitTypeDef){
+			pin, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL}
+			);
+	GPIO_PinAFConfig(GPIOx, pin, GPIO_AF_I2C1);
 }
 
 
