@@ -32,7 +32,7 @@ static int32_t i2cSpeedSet(char *speedStr) {
 static int32_t i2cPinSet(char *pinsStr) {
 	uint32_t pins = strtoul(pinsStr, NULL, 10);
 	int32_t rval = 0;
-	if (pins > 1){
+	if (pins & ~I2C1_PINS){
 		rval = -1;
 	} else {
 		i2c1SelectPins(pins);

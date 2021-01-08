@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
+#define I2C1_PINS ((uint16_t) GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9)
 
 typedef enum {
 	I2C_OK = 0,

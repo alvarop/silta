@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "stm32f4xx_conf.h"
-#include "stm32f4xx.h"
 #include "i2c.h"
 #include "gpio.h"
 
@@ -14,7 +12,6 @@
 extern volatile uint32_t tickMs;
 static volatile uint32_t i2cErr = 0;
 I2C_InitTypeDef i2cConfig;
-static const uint32_t I2C1_PINS = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
 
 void i2cSelectPin(GPIO_TypeDef *GPIOx, uint32_t pin);
 
