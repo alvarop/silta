@@ -6,6 +6,9 @@
 #include "i2c.h"
 #include "gpio.h"
 
+// PB6-9 have no AF0, but it is the on-reset default to set AF to 0.
+// It's not necessary to set this, but is used for completeness.
+#define GPIO_AF_DEFAULT ((uint8_t)0x00)
 #define I2C_TIMEOUT_MS (50)
 
 extern volatile uint32_t tickMs;
@@ -53,18 +56,42 @@ void i2cSetup() {
 
 }
 
-void i2c1SelectPins(uint32_t pins) {
-	uint32_t pin;
-	for (pin = 1; pin <= GPIO_Pin_15; pin=pin<<1)
-	{
-		if (pin & I2C1_PINS) {
-			if (pin & pins) {
-				i2cSelectPin(GPIOB, pin);
-			}
-			else {
-				gpioSelectPin(GPIOB, pin);
-			}
+void i2c1SelectPins(uint32_t GPIO_Pins) {
+	uint8_t pinpos;
 
+	// Set selected pins as AF
+	GPIO_Init(
+			GPIOB,
+			&(GPIO_InitTypeDef){
+				GPIO_Pins,
+				GPIO_Mode_AF,
+				GPIO_Speed_50MHz,
+				GPIO_OType_OD,
+				GPIO_PuPd_NOPULL
+			}
+	);
+
+	// Set deselected pins as GPIO inputs
+	GPIO_Init(
+			GPIOB,
+			&(GPIO_InitTypeDef){
+				I2C1_PINS ^ GPIO_Pins,
+				GPIO_Mode_IN,
+				GPIO_Speed_50MHz,
+				GPIO_OType_OD,
+				GPIO_PuPd_NOPULL
+			}
+	);
+
+	// Update alternate-function mux to I2C1
+	for (pinpos = 0; pinpos <= GPIO_PinSource15; pinpos++)
+	{
+		if (1<<pinpos & I2C1_PINS) {
+			if (1<<pinpos & GPIO_Pins) {
+				GPIO_PinAFConfig(GPIOB, pinpos, GPIO_AF_I2C1);
+			}
+			// An else clause here could reset the AF to something, however there is
+			// no other supported AF at this time.
 		}
 	}
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -72,16 +99,6 @@ void i2c1SelectPins(uint32_t pins) {
 
 	i2cSetup();
 }
-
-void i2cSelectPin(GPIO_TypeDef *GPIOx, uint32_t pin){
-	GPIO_Init(
-			GPIOx,
-			&(GPIO_InitTypeDef){
-			pin, GPIO_Mode_AF, GPIO_Speed_50MHz, GPIO_OType_OD, GPIO_PuPd_NOPULL}
-			);
-	GPIO_PinAFConfig(GPIOx, pin, GPIO_AF_I2C1);
-}
-
 
 int32_t i2c(I2C_TypeDef* I2Cx, uint8_t addr, uint16_t wLen, uint8_t *wBuff, uint16_t rLen, uint8_t *rBuff) {
 	int32_t rval = 0;
