@@ -72,7 +72,7 @@ void i2c1SelectPins(uint32_t GPIO_Pins) {
 	GPIO_Init(
 			GPIOB,
 			&(GPIO_InitTypeDef){
-				I2C1_PINS ^ GPIO_Pins,
+				~GPIO_Pins & I2C1_PINS,
 				GPIO_Mode_IN,
 				GPIO_Speed_50MHz,
 				GPIO_OType_OD,
