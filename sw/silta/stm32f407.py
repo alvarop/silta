@@ -154,18 +154,42 @@ class bridge(Silta):
 
         self.stream.write('{}\n'.format(cmd).encode())
         if self.DEBUG is True:
-            print('CMD : ' + cmd)
+            print('CMD : {}'.format(cmd))
 
         line = self.stream.readline()
         if self.DEBUG is True:
-            print('RESP: ' + line)
+            print('RESP: {}'.format(line))
 
         return line.decode()
 
-    # Set I2C Speed
     def i2c_speed(self, speed):
+      return self.i2c1_speed(speed)
+
+    # Set I2C Speed
+    def i2c1_speed(self, speed):
         ''' Set I2C speed in Hz. '''
         cmd = 'config i2cspeed ' + str(speed)
+
+        line = self.__send_cmd(cmd)
+
+        result = line.strip().split(' ')
+
+        if result[0] == 'OK':
+            return True
+        else:
+            return False
+
+    # Set I2C pins
+    def i2c1_pins(self, pins):
+        ''' Set I2C1 pins on GPIOB
+        Args:
+          pins: A 32 bit integer, bitwise selection of each pin
+
+        Example:
+          pins = 1 selects GPIO_Pin_0
+          pins = 5 selects GPIO_Pin_0 & GPIO_Pin_2 (aka PB0 and PB2)
+        '''
+        cmd = 'config i2cpins ' + str(pins)
 
         line = self.__send_cmd(cmd)
 

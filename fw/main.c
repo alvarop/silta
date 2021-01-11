@@ -35,7 +35,8 @@ int main(void) {
 
 	gpioInit();
 	adcInit();
-	i2cSetup(100000);
+	i2c1SelectPins(GPIO_Pin_6 | GPIO_Pin_9);
+	i2cSetSpeed(100000);
 	spiInit(0);
 	spiConfig(0, 1000000, 1, 1);
 	pwmInit();
@@ -96,10 +97,10 @@ void init() {
 	setUSBSerial();
 
 	USBD_Init(&USB_OTG_dev,
-				USB_OTG_FS_CORE_ID,
-				&USR_desc,
-				&USBD_CDC_cb,
-				&USR_cb);
+			USB_OTG_FS_CORE_ID,
+			&USR_desc,
+			&USBD_CDC_cb,
+			&USR_cb);
 }
 
 void SysTick_Handler(void)

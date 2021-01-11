@@ -26,6 +26,12 @@ class Silta:
 
         return False
 
+    # Set I2C Pins
+    def i2c_pins(self, pins):
+        ''' Set I2C pins.  '''
+
+        return False
+
     # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):
         ''' I2C Transaction (write-then-read)
