@@ -93,6 +93,8 @@ class bridge(Silta):
     __SPI_MAX_BYTES = 1024
     __I2C_MAX_BYTES = 1024
 
+    PIN = [1<<i for i in range(15)]
+
     def __init__(self, serial_device, baud_rate=None):
         ''' Initialize Silta STM32F407 Bridge
 
@@ -163,7 +165,8 @@ class bridge(Silta):
         return line.decode()
 
     def i2c_speed(self, speed):
-      return self.i2c1_speed(speed)
+        ''' Alias of i2c1_speed method '''
+        return self.i2c1_speed(speed)
 
     # Set I2C Speed
     def i2c1_speed(self, speed):
@@ -183,11 +186,18 @@ class bridge(Silta):
     def i2c1_pins(self, pins):
         ''' Set I2C1 pins on GPIOB
         Args:
-          pins: A 32 bit integer, bitwise selection of each pin
+            pins: A 32 bit integer, bitwise selection of pins to use for i2c1
+                peripheral
 
         Example:
-          pins = 1 selects GPIO_Pin_0
-          pins = 5 selects GPIO_Pin_0 & GPIO_Pin_2 (aka PB0 and PB2)
+            Select PB6 and PB9:
+                my_bridge.i2c1_pins(my_bridge.PIN[6] + my_bridge.PIN[9])
+            Select PB7 and PB8:
+                my_bridge.i2c1_pins(my_bridge.PIN[7] | my_bridge.PIN[8])
+                OR
+                my_bridge.i2c1_pins(128 | 256)
+                OR
+                my_bridge.i2c1_pins(0x180)
         '''
         cmd = 'config i2cpins ' + str(pins)
 
@@ -200,8 +210,12 @@ class bridge(Silta):
         else:
             return False
 
-    # I2C Transaction (wbytes is a list of bytes to tx)
     def i2c(self, addr, rlen, wbytes = []):
+        ''' Alias of i2c1 method '''
+        return self.i2c1(addr, rlen, wbytes)
+
+    # I2C Transaction (wbytes is a list of bytes to tx)
+    def i2c1(self, addr, rlen, wbytes = []):
         ''' I2C Transaction (write-then-read)
 
             Arguments:
