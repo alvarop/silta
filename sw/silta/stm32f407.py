@@ -3,6 +3,8 @@
 --- Supported Pins
 I2C:
 * PB6 - I2C1 SCL
+* PB7 - I2C1 SDA (optional)
+* PB8 - I2C1 SCL (optional)
 * PB9 - I2C1 SDA
 
 SPI:
@@ -52,6 +54,28 @@ import serial
 from silta import Silta
 
 
+PIN_RE = re.compile(r'P([A-E])([0-9]+)', re.IGNORECASE)
+
+
+def _get_pin(raw_str):
+    ''' Parse and validate pin definition
+    Args:
+        raw_str: string of the form PXY
+    Returns:
+        str, int
+    '''
+    match = PIN_RE.search(raw_str)
+    if not match:
+        raise ValueError(
+            'Invalid pin definition. Pins are defined as '
+            'PXY where X is A-E and Y is 0-15 (e.g. PB5)')
+    port, pin = match.groups()
+    pin = int(pin)
+    if pin > 15:
+        raise ValueError('Invalid pin. Should be a number from 0-15')
+    return port, pin
+
+
 class bridge(Silta):
     ''' Silta STM32F407 Discovery Bridge '''
 
@@ -93,13 +117,13 @@ class bridge(Silta):
     __SPI_MAX_BYTES = 1024
     __I2C_MAX_BYTES = 1024
 
-    PIN = [1<<i for i in range(15)]
+    PIN = [1 << i for i in range(15)]
 
     def __init__(self, serial_device, baud_rate=None):
         ''' Initialize Silta STM32F407 Bridge
 
-            Arguments:
-            USB serial device path (e.g. /dev/ttyACMX, /dev/cu.usbmodemXXXXX)
+            Args:
+                USB serial device path (e.g. /dev/ttyACMX)
         '''
 
         self.stream = None
@@ -210,23 +234,23 @@ class bridge(Silta):
         else:
             return False
 
-    def i2c(self, addr, rlen, wbytes = []):
+    def i2c(self, addr, rlen, wbytes=[]):
         ''' Alias of i2c1 method '''
         return self.i2c1(addr, rlen, wbytes)
 
     # I2C Transaction (wbytes is a list of bytes to tx)
-    def i2c1(self, addr, rlen, wbytes = []):
+    def i2c1(self, addr, rlen, wbytes=[]):
         ''' I2C Transaction (write-then-read)
 
-            Arguments:
-            addr - 8 bit I2C address
-            rlen - Number of bytes to read
-            wbytes - List of bytes to write
+            Args:
+                addr - 8 bit I2C address
+                rlen - Number of bytes to read
+                wbytes - List of bytes to write
 
             Return value:
-            Integer with error code
-            or
-            List with read bytes (or empty list if write-only command)
+                Integer with error code
+                or
+                List with read bytes (or empty list if write-only command)
         '''
 
         if len(wbytes) > self.__I2C_MAX_BYTES:
@@ -261,16 +285,7 @@ class bridge(Silta):
         if self.lastcspin != cspin:
             self.lastcspin = cspin
 
-            pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', cspin)
-
-            if pinmatch is None:
-                raise ValueError('Invalid CS gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
-
-            port = pinmatch.group(1)
-            pin = int(pinmatch.group(2))
-
-            if pin > 15:
-                raise ValueError('Invalid pin. Should be a number from 0-15')
+            port, pin = _get_pin(cspin)
 
             cmd = 'spics ' + port + ' ' + str(pin)
 
@@ -282,17 +297,17 @@ class bridge(Silta):
                 raise ValueError('Unable to configure SPI CS pin')
 
     # SPI Transaction (wbytes is list of bytes)
-    def spi(self, cspin, wbytes = []):
+    def spi(self, cspin, wbytes=[]):
         ''' SPI Transaction
 
-            Arguments:
-            cspin - Chip/Slave select pin for transaction
-            wbytes - List of bytes to write out
+            Args:
+                cspin - Chip/Slave select pin for transaction
+                wbytes - List of bytes to write out
 
-            Return Values:
-            Integer error code
-            or
-            List of read bytes
+            Returns:
+                Integer error code
+                or
+                List of read bytes
         '''
         if len(wbytes) > self.__SPI_MAX_BYTES:
             raise ValueError('wbytes too long. Max:', self.__SPI_MAX_BYTES)
@@ -323,20 +338,20 @@ class bridge(Silta):
     def spicfg(self, speed, cpol, cpha):
         ''' SPI Configuration
 
-            Arguments:
-            speed - SPI Speed in Hz
-                Supported speeds: 42000000, 21000000, 10500000, 5250000,
-                                    2625000, 1312500, 656250, 328125
-            cpol - Clock polarity
-            cpha - Clock phase
+            Args:
+                speed - SPI Speed in Hz
+                    Supported speeds: 42000000, 21000000, 10500000, 5250000,
+                                        2625000, 1312500, 656250, 328125
+                cpol - Clock polarity
+                cpha - Clock phase
 
-            Return Values:
-            True for success
-            or
-            False for failure
+            Returns:
+                True for success
+                or
+                False for failure
         '''
 
-        cmd = 'spicfg ' + str(speed) + ' ' + str(int(cpol) & 1) + ' ' + str(int(cpha) & 1)
+        cmd = 'spicfg {} {} {}'.format(speed, int(cpol) & 1, int(cpha) & 1)
         line = self.__send_cmd(cmd)
 
         result = line.strip().split(' ')
@@ -350,39 +365,32 @@ class bridge(Silta):
     def gpiocfg(self, name, mode='input', pull=None):
         ''' GPIO Configuration
 
-            Arguments:
-            name - Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
-            mode - Pin mode
-                Available modes:
-                input - Digital Input
-                output - Push-pull output
-                output-od - Open drain output
-                analog - Analog input
-            pull -
-                None (default) - No pull
-                up - Pull-up
-                down - Pull-down
+            Args:
+                name - Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
+                mode - Pin mode
+                    Available modes:
+                    input - Digital Input
+                    output - Push-pull output
+                    output-od - Open drain output
+                    analog - Analog input
+                pull -
+                    None (default) - No pull
+                    up - Pull-up
+                    down - Pull-down
         '''
-        pinmatch = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
-
-        if pinmatch is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
-
-        port = pinmatch.group(1)
-        pin = int(pinmatch.group(2))
-
-        if pin > 15:
-            raise ValueError('Invalid pin. Should be a number from 0-15')
+        port, pin = _get_pin(name)
 
         if mode not in self.__pinModes:
-            raise ValueError('Invalid pin mode. Valid modes: <' + string.join(self.__pinModes.keys(), '|') + '>')
+            raise ValueError('Invalid pin mode. Valid modes: <' + string.join(
+                self.__pinModes.keys(), '|') + '>')
 
-        if pull != None and pull not in self.__pullModes:
-            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(self.__pullModes.keys(), '|') + '>')
+        if pull is not None and pull not in self.__pullModes:
+            raise ValueError('Invalid pull mode. Valid modes: <' + string.join(
+                self.__pullModes.keys(), '|') + '>')
 
         cmd = 'gpiocfg ' + port + ' ' + str(pin) + ' ' + self.__pinModes[mode]
 
-        if pull != None:
+        if pull is not None:
             cmd += ' ' + self.__pullModes[pull]
 
         line = self.__send_cmd(cmd)
@@ -393,31 +401,23 @@ class bridge(Silta):
             print("Error configuring pin")
 
     # Read/write gpio value
-    def gpio(self, name, value = None):
+    def gpio(self, name, value=None):
         ''' Read/Write GPIO (Digital only for now)
 
-            name - Pin name (e.g. PA3, PD11, PB0)
-            value (If setting) - 0 or 1
+            Args:
+                name - Pin name (e.g. PA3, PD11, PB0)
+                value (If setting) - 0 or 1
 
-            Return Values:
-            None - if set was succesful
-            None - if get failed
-            Integer - pin value
+            Returns:
+                None - if set was succesful
+                None - if get failed
+                Integer - pin value
         '''
-        m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
-
-        if m is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
-
-        port = m.group(1)
-        pin = int(m.group(2))
-
-        if pin > 15:
-            raise ValueError('Invalid pin. Should be a number from 0-15')
+        port, pin = _get_pin(name)
 
         cmd = 'gpio ' + port + ' ' + str(pin)
 
-        if value != None:
+        if value is not None:
             cmd += ' ' + str(value)
 
         line = self.__send_cmd(cmd)
@@ -425,7 +425,7 @@ class bridge(Silta):
         result = line.strip().split(' ')
 
         if result[0] == 'OK':
-            if value != None:
+            if value is not None:
                 return
             else:
                 return int(result[1])
@@ -436,16 +436,7 @@ class bridge(Silta):
     def __adc_get_num(self, name):
         ''' Get ADC number from pin name '''
 
-        m = re.search('[Pp]([A-Ea-e])([0-9]+)', name)
-
-        if m is None:
-            raise ValueError('Invalid gpio name. Should be of the form PX.Y where X is A-E and Y is 0-15')
-
-        port = m.group(1)
-        pin = int(m.group(2))
-
-        if pin > 15:
-            raise ValueError('Invalid pin. Should be a number from 0-15')
+        port, pin = _get_pin(name)
 
         cmd = 'adcnum ' + port + ' ' + str(pin)
 
@@ -462,12 +453,12 @@ class bridge(Silta):
     def adc(self, name):
         ''' Read ADC pin
 
-            Arguments:
-            name - Pin name
+            Args:
+                name - Pin name
 
-            Return Values:
-            None - if read failed
-            float - Pin value in volts
+            Returns:
+                None - if read failed
+                float - Pin value in volts
         '''
 
         name = name.upper()
@@ -492,7 +483,7 @@ class bridge(Silta):
 
     def dac_enable(self):
         ''' Enable DACs
-            Return Values:
+            Returns:
                 None - Failed setting DAC value
                 True - Value set successfully
         '''
@@ -510,13 +501,13 @@ class bridge(Silta):
     def dac(self, name, voltage):
         ''' Set DAC Output
 
-            Arguments:
-            name - DAC pin
-            voltage - Voltage setting for pin
+            Args:
+                name - DAC pin
+                voltage - Voltage setting for pin
 
-            Return Values:
-            None - Failed setting DAC value
-            True - Value set successfully
+            Returns:
+                None - Failed setting DAC value
+                True - Value set successfully
         '''
 
         name = name.upper()
@@ -529,7 +520,7 @@ class bridge(Silta):
 
         dac_val = int(voltage/self.__DAC_MAX_VOLTAGE * self.__DAC_MAX_VAL)
 
-        line = self.__send_cmd('dac ' + str(self.__dacs[name]) + ' ' + str(dac_val))
+        line = self.__send_cmd('dac {} {}'.format(self.__dacs[name], dac_val))
 
         result = line.strip().split(' ')
 
@@ -542,13 +533,13 @@ class bridge(Silta):
     def pwm(self, name, duty_cycle):
         ''' Set PWM Output
 
-            Arguments:
-            name - PWM pin
-            duty_cycle - Value from 0-1
+            Args:
+                name - PWM pin
+                duty_cycle - Value from 0-1
 
-            Return Values:
-            None - Failed setting PWM value
-            True - Value set successfully
+            Returns:
+                None - Failed setting PWM value
+                True - Value set successfully
         '''
 
         name = name.upper()

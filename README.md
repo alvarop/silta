@@ -1,4 +1,4 @@
-#Silta - Python to STM32F4 Bridge Project
+# Silta - Python to STM32F4 Bridge Project
 
 Python library and STM32F4 Discovery firmware to control the microcontroller's GPIOs and serial interfaces directly from python. This allows for intefacing with external devices quickly without having to write any firmware!
 
@@ -12,6 +12,10 @@ For firmware download/build/update instructions, see: https://github.com/alvarop
 
 For python module build instructions, see: https://github.com/alvarop/silta/tree/master/sw
 
+### Hardware References
+* [STM32F407 Datasheet](https://www.st.com/resource/en/datasheet/stm32f407vg.pdf)
+* [STM32F407 Reference Manual](https://www.st.com/resource/en/reference_manual/dm00031020-stm32f405415-stm32f407417-stm32f427437-and-stm32f429439-advanced-armbased-32bit-mcus-stmicroelectronics.pdf)
+
 ### Installation Instructions
 
 You should be able to use pip to get the silta python module using:
@@ -20,8 +24,10 @@ You should be able to use pip to get the silta python module using:
 ### Pins
 
 #### I2C
-* PB6 - I2C1 SCL
-* PB9 - I2C1 SDA
+* PB6 - I2C1 SCL (default)
+* PB7 - I2C1 SDA (optional)
+* PB8 - I2C1 SCL (optional)
+* PB9 - I2C1 SDA (default)
 
 #### SPI
 * PA5 - SPI1 SCK
