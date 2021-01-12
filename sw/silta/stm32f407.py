@@ -243,9 +243,9 @@ class bridge(Silta):
         ''' I2C Transaction (write-then-read)
 
             Args:
-                addr - 8 bit I2C address
-                rlen - Number of bytes to read
-                wbytes - List of bytes to write
+                addr: 8 bit I2C address
+                rlen: Number of bytes to read
+                wbytes: List of bytes to write
 
             Return value:
                 Integer with error code
@@ -301,8 +301,8 @@ class bridge(Silta):
         ''' SPI Transaction
 
             Args:
-                cspin - Chip/Slave select pin for transaction
-                wbytes - List of bytes to write out
+                cspin: Chip/Slave select pin for transaction
+                wbytes: List of bytes to write out
 
             Returns:
                 Integer error code
@@ -339,11 +339,11 @@ class bridge(Silta):
         ''' SPI Configuration
 
             Args:
-                speed - SPI Speed in Hz
+                speed: SPI Speed in Hz
                     Supported speeds: 42000000, 21000000, 10500000, 5250000,
                                         2625000, 1312500, 656250, 328125
-                cpol - Clock polarity
-                cpha - Clock phase
+                cpol: Clock polarity
+                cpha: Clock phase
 
             Returns:
                 True for success
@@ -366,14 +366,14 @@ class bridge(Silta):
         ''' GPIO Configuration
 
             Args:
-                name - Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
-                mode - Pin mode
+                name: Pin name with format P<port><pin> (e.g. PA3, PD11, PB0)
+                mode: Pin mode
                     Available modes:
                     input - Digital Input
                     output - Push-pull output
                     output-od - Open drain output
                     analog - Analog input
-                pull -
+                pull: Pull-resistor
                     None (default) - No pull
                     up - Pull-up
                     down - Pull-down
@@ -405,8 +405,8 @@ class bridge(Silta):
         ''' Read/Write GPIO (Digital only for now)
 
             Args:
-                name - Pin name (e.g. PA3, PD11, PB0)
-                value (If setting) - 0 or 1
+                name: Pin name (e.g. PA3, PD11, PB0)
+                value: (If setting) - 0 or 1
 
             Returns:
                 None - if set was succesful
@@ -454,7 +454,7 @@ class bridge(Silta):
         ''' Read ADC pin
 
             Args:
-                name - Pin name
+                name: Pin name
 
             Returns:
                 None - if read failed
@@ -502,8 +502,8 @@ class bridge(Silta):
         ''' Set DAC Output
 
             Args:
-                name - DAC pin
-                voltage - Voltage setting for pin
+                name: DAC pin
+                voltage: Voltage setting for pin
 
             Returns:
                 None - Failed setting DAC value
@@ -534,8 +534,8 @@ class bridge(Silta):
         ''' Set PWM Output
 
             Args:
-                name - PWM pin
-                duty_cycle - Value from 0-1
+                name: PWM pin
+                duty_cycle: Value from 0-1
 
             Returns:
                 None - Failed setting PWM value
