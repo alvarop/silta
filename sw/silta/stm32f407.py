@@ -51,9 +51,6 @@ import re
 import string
 
 import serial
-from silta import Silta
-
-
 PIN_RE = re.compile(r'P([A-E])([0-9]+)', re.IGNORECASE)
 
 
@@ -76,7 +73,7 @@ def _get_pin(raw_str):
     return port, pin
 
 
-class bridge(Silta):
+class bridge(object):
     ''' Silta STM32F407 Discovery Bridge '''
 
     __pinModes = {
@@ -553,7 +550,7 @@ class bridge(Silta):
         period = 10000
         val = int(period * duty_cycle)
 
-        line = self.__send_cmd('pwm ' + str(self.__pwms[name]) + ' ' + str(val))
+        line = self.__send_cmd('pwm {} {}'.format(self.__pwms[name], val))
 
         result = line.strip().split(' ')
 
