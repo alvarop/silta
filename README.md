@@ -6,11 +6,11 @@ Currently supported interfaces: I2C1, GPIOs (A-E), SPI1, ADCs, DACs, PWM (2 chan
 
 Future support (hopefully): UART, I2C2-3, SPI2+
 
-For examples, see: https://github.com/alvarop/silta/tree/master/sw/examples
+For examples, see: https://github.com/alvarop/silta/tree/main/sw/examples
 
-For firmware download/build/update instructions, see: https://github.com/alvarop/silta/tree/master/fw
+For firmware download/build/update instructions, see: https://github.com/alvarop/silta/tree/main/fw
 
-For python module build instructions, see: https://github.com/alvarop/silta/tree/master/sw
+For python module build instructions, see: https://github.com/alvarop/silta/tree/main/sw
 
 ### Hardware References
 * [STM32F407 Datasheet](https://www.st.com/resource/en/datasheet/stm32f407vg.pdf)
