@@ -97,6 +97,7 @@ int32_t spiInit(uint32_t device) {
 		spiConfigStruct.SPI_CPOL = spiConfigs[0].cpol ? SPI_CPOL_High : SPI_CPOL_Low;
 		spiConfigStruct.SPI_CPHA = spiConfigs[0].cpha ? SPI_CPHA_2Edge : SPI_CPHA_1Edge;
 		spiConfigStruct.SPI_NSS = SPI_NSS_Soft;
+        spiConfigStruct.SPI_DataSize = SPI_DataSize_8b;
 
 		// TODO - compute prescaler from speed. Hardcoding for now
 		spiConfigStruct.SPI_BaudRatePrescaler = spiPrescalerFromSpeed(0, spiConfigs[0].speed);
@@ -105,8 +106,6 @@ int32_t spiInit(uint32_t device) {
 
 		SPI_Init(SPIx, &spiConfigStruct);
 
-		SPI_Cmd(SPIx, ENABLE);
-		
 		rval = 0;
 	} 
 
@@ -140,28 +139,50 @@ int32_t spiSetCS(uint32_t device, GPIO_TypeDef* csPort, uint16_t csPin) {
 int32_t spi(uint32_t device, uint32_t rwLen, uint8_t *wBuff, uint8_t *rBuff) {
 	int32_t rval = -1;
 
+	if(!(rwLen > 0)){
+		return 0;
+	}
+		
 	if(device < sizeof(spiConfigs)/sizeof(spiConfig_t)) {
 		SPI_TypeDef *SPIx = spiConfigs[device].SPIx;
+        SPI_Cmd(SPIx, ENABLE);
 
 		if(spiConfigs[0].csPort) {
 			// Disable CS, since it's active low
 			GPIO_ResetBits(spiConfigs[0].csPort, (1 << spiConfigs[0].csPin));
 		}
 
-		for(int32_t byte = 0; byte < rwLen; byte++){
-			
-			SPIx->DR = wBuff[byte];
-			while(!(SPIx->SR & SPI_I2S_FLAG_TXE));
-			while(!(SPIx->SR & SPI_I2S_FLAG_RXNE));
-			while(SPIx->SR & SPI_I2S_FLAG_BSY);
-			rBuff[byte] = SPIx->DR;
+		uint32_t i = 0;  // TX index
+		uint32_t j = 0;  // RX index
+
+		// Transmit the first TX
+		while(!(SPIx->SR & SPI_I2S_FLAG_TXE)){};
+		SPIx->DR = wBuff[i++];
+
+		while(i < rwLen){
+
+			// Wait until TX buffer is empty
+			while(!(SPIx->SR & SPI_I2S_FLAG_TXE)){};
+			SPIx->DR = wBuff[i++];
+
+			// Wait until RX data register is ready (Not Empty)
+			while(!(SPIx->SR & SPI_I2S_FLAG_RXNE)){};
+			rBuff[j++] = SPIx->DR;
 		}
+
+		// Receive the last RX
+		while(!(SPIx->SR & SPI_I2S_FLAG_RXNE)){};
+			rBuff[j++] = SPIx->DR;
+
+		// Wait for SPI comms to finish
+		while(SPIx->SR & SPI_I2S_FLAG_BSY){};
 
 		if(spiConfigs[0].csPort) {
 			// Disable CS, since it's active low
 			GPIO_SetBits(spiConfigs[0].csPort, (1 << spiConfigs[0].csPin));
 		}
 
+        SPI_Cmd(SPIx, DISABLE);
 		rval = 0;
 	}
 	
