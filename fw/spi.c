@@ -174,6 +174,10 @@ int32_t spi(uint32_t device, uint32_t rwLen, uint8_t *wBuff, uint8_t *rBuff) {
 		while(!(SPIx->SR & SPI_I2S_FLAG_RXNE)){};
 			rBuff[j++] = SPIx->DR;
 
+		// This appears redundant with BSY, however the manual states:
+		// Wait until TXE=1 and then wait until BSY=0 before disabling the SPI.
+		while(!(SPIx->SR & SPI_I2S_FLAG_TXE)){};
+
 		// Wait for SPI comms to finish
 		while(SPIx->SR & SPI_I2S_FLAG_BSY){};
 
